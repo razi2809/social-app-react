@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import instagramPic from "../../assets/instgram.png";
 import { Grid, Button } from "@mui/material";
 import LogInPop from "../../components/logInPop";
 import SignUpPop from "../../components/SignUpPop";
 import { auth } from "../../firebase";
 import NewPost from "../../components/newPost";
-import { RootState, useAppSelector } from "../../REDUX/bigpie";
+import { RootState, useAppDispatch, useAppSelector } from "../../REDUX/bigpie";
+import { authActions } from "../../REDUX/authslice";
 
-const Header = () => {
+const Header: FC<{ done: Boolean }> = ({ done }) => {
   const [isHeWantToLog, setIsHeWantToLog] = useState<boolean>(false);
   const [isHeWantToSignUp, setisHeWantToSignUp] = useState<boolean>(false);
   const [isHeWantToPost, setIsHeWantToPost] = useState<boolean>(false);
-  const [done, setDonet] = useState(false);
   const user = useAppSelector((bigPie: RootState) => bigPie.authReducer);
+  const dispatch = useAppDispatch();
   console.log("user", user);
-  useEffect(() => {
-    if (user.isLoggedIn) {
-      setDonet(true);
-    } else return;
-  }, [user.isLoggedIn]);
+  const signOut = () => {
+    auth.signOut();
+    dispatch(authActions.logout());
+  };
   return (
     <>
       <Grid container spacing={3} className="app_headher">
@@ -47,7 +47,7 @@ const Header = () => {
                 sx={{ mr: 4 }}
                 variant="contained"
                 color="primary"
-                onClick={() => auth.signOut()}
+                onClick={signOut}
               >
                 log out
               </Button>
@@ -60,7 +60,7 @@ const Header = () => {
               </Button>
             </>
           )}
-          {done && !user.isLoggedIn && (
+          {!user.isLoggedIn && done && (
             <>
               <Button
                 sx={{ mr: 4 }}

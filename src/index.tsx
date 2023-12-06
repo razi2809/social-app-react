@@ -10,7 +10,7 @@ import LayoutComponents from "./layout/layoutComponents";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <Provider store={store}>
     <LayoutComponents>
-      <BrowserRouter basename="Whatsgram">
+      <BrowserRouter basename="/social-app-react">
         <App />
       </BrowserRouter>
     </LayoutComponents>

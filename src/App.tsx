@@ -9,18 +9,20 @@ import React from "react"; // Add import statement for React
 import LayoutComponents from "./layout/layoutComponents";
 
 const App = () => {
-  const dispatch = useAppDispatch();
+  console.log("App");
+
+  /*   const dispatch = useAppDispatch();
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         dispatch(authActions.login(authUser));
         console.log("authUser", authUser);
       } else {
-        dispatch(authActions.logout());
+        console.log("noauthUser");
       }
     });
     return unsubscribe;
-  }, []);
+  }, []); */
 
   return (
     <div className="app">
