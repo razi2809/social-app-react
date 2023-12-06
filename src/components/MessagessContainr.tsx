@@ -50,7 +50,7 @@ const MessagessContainr: FC = () => {
           <MessageTamplate
             message={message}
             key={message.id}
-            didISend={message.senderId == chatBuddy.user?.uid ? true : false}
+            didISend={message.senderId != chatBuddy.user?.uid ? true : false}
           />
         ))}
     </Grid>
