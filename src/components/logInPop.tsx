@@ -13,15 +13,18 @@ import { auth, signInWithGoogle, LoginWithGoogle } from "../firebase";
 import firebase from "firebase/compat/app";
 
 import "firebase/compat/auth";
-
-export default function LogInPop({ setIsOpen, isOpen }) {
+interface Props {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+}
+export default function LogInPop({ setIsOpen, isOpen }: Props) {
   const [inputsValue, setInputsValue] = useState({
     email: "",
     password: "",
   });
-  const [done, setDone] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const handleInputsChange = (e) => {
+  const [done, setDone] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const handleInputsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputsValue((currentState) => ({
       //update the state  values
       ...currentState,
@@ -74,7 +77,7 @@ export default function LogInPop({ setIsOpen, isOpen }) {
                 autoFocus
                 margin="dense"
                 id="email"
-                value={inputsValue.emailValue}
+                value={inputsValue.email}
                 onChange={handleInputsChange}
                 label="Email Address"
                 type="email"
@@ -85,7 +88,7 @@ export default function LogInPop({ setIsOpen, isOpen }) {
                 margin="dense"
                 id="password"
                 label="Password"
-                value={inputsValue.passwordValue}
+                value={inputsValue.password}
                 onChange={handleInputsChange}
                 type="password"
                 fullWidth

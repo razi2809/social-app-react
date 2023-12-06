@@ -1,5 +1,6 @@
 {
   "name": "instgram-app",
+  "homepage": "https://razi2809.github.io/social-app-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,9 +20,9 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.5.10",
-    "@types/node": "^20.10.3",
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
+    "@types/react-router-dom": "^5.3.3",
     "date-fns": "^2.30.0",
     "firebase": "^10.7.0",
     "framer-motion": "^10.16.5",
@@ -34,7 +35,6 @@
     "react-tilt": "^1.0.2",
     "react-vertical-timeline-component": "^3.6.0",
     "redux": "^4.2.1",
-    "typescript": "^5.3.2",
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -42,7 +42,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -63,6 +65,12 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.3.5"
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.3",
+    "@types/uuid": "^9.0.7",
+    "gh-pages": "^6.1.0",
+    "tailwindcss": "^3.3.5",
+    "tsx": "^4.6.2",
+    "typescript": "^4.0.5"
   }
 }

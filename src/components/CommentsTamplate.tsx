@@ -1,4 +1,3 @@
-import { AccountCircle } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -10,22 +9,32 @@ import {
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
 
-import { formatDistance, formatDistanceToNow, subDays } from "date-fns";
-import React, { Fragment, useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import React, { FC, Fragment, useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useSelector } from "react-redux";
 import { db } from "../firebase";
 import EditIcon from "@mui/icons-material/Edit";
 import firebase from "firebase/compat/app";
+import { useAppSelector } from "../REDUX/bigpie";
+interface Prop {
+  comment: {
+    comment: string;
+    timestamp: firebase.firestore.Timestamp;
+    userName: string;
+    avatar: string;
+    edited: boolean;
+  };
+  id: string;
+  postId: string;
+}
 
-const CommentsTamplate = ({ comment, id, postId }) => {
-  const [timeAgo, setTimeAgo] = useState(null);
+const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
+  const [timeAgo, setTimeAgo] = useState("");
   const [editComment, setEditComment] = useState(false);
   const [editText, setEditText] = useState(comment.comment);
   const caption = comment.comment;
   const who = comment.userName;
-  const avatar = comment.avatar || null;
-  const user = useSelector((bigPie) => bigPie.authReducer);
+  const user = useAppSelector((bigPie) => bigPie.authReducer);
   useEffect(() => {
     if (comment.timestamp == null) return;
     const when = comment.timestamp.toDate();
@@ -53,7 +62,11 @@ const CommentsTamplate = ({ comment, id, postId }) => {
       }}
     >
       <Grid item xs={2}>
-        <Avatar sx={{ scale: "70%" }} src={avatar} />{" "}
+        <Avatar
+          sx={{ scale: "70%" }}
+          src={comment.avatar ?? undefined}
+          alt={comment.avatar || "User"}
+        />{" "}
       </Grid>
       <Grid item xs={5}>
         {" "}
@@ -73,7 +86,7 @@ const CommentsTamplate = ({ comment, id, postId }) => {
         )}
       </Grid>
       <Grid item xs={5}>
-        {user.isLoggedIn && user.user.displayName == who && (
+        {user.isLoggedIn && user.user?.displayName == who && (
           <Fragment>
             <Tooltip title="delete comment">
               <IconButton
@@ -91,14 +104,14 @@ const CommentsTamplate = ({ comment, id, postId }) => {
             </Tooltip>
           </Fragment>
         )}
-        {user.isLoggedIn && user.user.displayName == who && !editComment && (
+        {user.isLoggedIn && user.user?.displayName == who && !editComment && (
           <Tooltip title="edit comment">
             <IconButton onClick={handleEdit} aria-label="comment">
               <EditIcon />
             </IconButton>
           </Tooltip>
         )}
-        {user.isLoggedIn && user.user.displayName == who && editComment && (
+        {user.isLoggedIn && user.user?.displayName == who && editComment && (
           <Tooltip title="edit comment">
             <IconButton onClick={handleupdate} aria-label="comment">
               <CommentIcon />

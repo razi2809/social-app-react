@@ -6,6 +6,19 @@ import "firebase/compat/firestore";
 import firebase from "firebase/compat/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+interface User {
+  multiFactor: object;
+  _delegate: object;
+  auth: object;
+  displayName: null | string;
+  phoneNumber: null | string;
+  photoURL: null | string;
+  providerData: Array<object>;
+  providerId: string;
+  refreshToken: string;
+  tenantId: null | string;
+  uid: string;
+}
 const firebaseConfig = {
   apiKey: "AIzaSyCWu39i99LppMLzKVHX_GGkt8vEASbHaXE",
   authDomain: "social-media-27267.firebaseapp.com",

@@ -1,9 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import firebase from "firebase/compat/app";
 const authSlice = createSlice({
-  initialState: { isLoggedIn: false, user: null },
+  initialState: {
+    isLoggedIn: false,
+    user: null as firebase.User | null,
+  },
   name: "auth",
   reducers: {
-    login: (state, action) => {
+    login: (state, action: PayloadAction<firebase.User | null>) => {
       state.isLoggedIn = true;
       state.user = action.payload;
     },

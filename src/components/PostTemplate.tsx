@@ -1,5 +1,5 @@
 // Instagram Post Template
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import {
   Avatar,
@@ -17,24 +17,44 @@ import {
   Box,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
-import { useSelector } from "react-redux";
 import { db } from "../firebase";
 import firebase from "firebase/compat/app";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CommentsTamplate from "./CommentsTamplate";
 import EditIcon from "@mui/icons-material/Edit";
-
-const PostTemplate = ({ post, postId }) => {
+import { useAppSelector } from "../REDUX/bigpie";
+interface Props {
+  postId: string;
+  post: {
+    imgurl: string;
+    avatar: string;
+    username: string;
+    edited: Boolean;
+    timestamp: firebase.firestore.Timestamp;
+    title: string;
+  };
+}
+interface Comment {
+  id: string;
+  comment: {
+    comment: string;
+    timestamp: firebase.firestore.Timestamp;
+    userName: string;
+    avatar: string;
+    edited: boolean;
+  };
+}
+const PostTemplate: FC<Props> = ({ post, postId }) => {
   const [timeAgo, setTimeAgo] = useState("");
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [editPost, setEditPost] = useState(false);
   const [editText, setEditText] = useState(post.title);
-  const user = useSelector((bigPie) => bigPie.authReducer);
-  const image = post.imgUrl;
+  const user = useAppSelector((bigPie) => bigPie.authReducer);
+  const image = post.imgurl;
   const avatar = post.avatar;
   const caption = post.title;
-  const who = post.userName;
+  const who = post.username;
   useEffect(() => {
     db.collection(`posts`)
       .doc(postId)
@@ -44,7 +64,13 @@ const PostTemplate = ({ post, postId }) => {
         setComments(
           snapshot.docs.map((doc) => ({
             id: doc.id,
-            comment: doc.data(),
+            comment: {
+              comment: doc.data().comment,
+              timestamp: doc.data().timestamp,
+              userName: doc.data().userName,
+              avatar: doc.data().avatar,
+              edited: doc.data().edited,
+            },
           }))
         );
       });
@@ -61,9 +87,9 @@ const PostTemplate = ({ post, postId }) => {
     db.collection("posts").doc(postId).collection("comments").add({
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       comment: comment,
-      userName: user.user.displayName,
+      userName: user.user?.displayName,
       edited: false,
-      avatar: user.user.photoURL,
+      avatar: user.user?.photoURL,
     });
     setComment("");
   };
@@ -156,7 +182,8 @@ const PostTemplate = ({ post, postId }) => {
           {user.isLoggedIn && (
             <Box sx={{ display: "flex", alignItems: "flex-end" }}>
               <Avatar
-                src={user.user.photoURL}
+                src={user.user?.photoURL ?? undefined}
+                alt={user.user?.displayName || "User"}
                 sx={{ height: 30, width: 30, m: 1 }}
               />
               <TextField
@@ -178,7 +205,7 @@ const PostTemplate = ({ post, postId }) => {
                 </IconButton>
               </Tooltip>
             )}
-            {user.isLoggedIn && user.user.displayName == who && (
+            {user.isLoggedIn && user.user?.displayName == who && (
               <Tooltip title="delete comment">
                 <IconButton
                   onClick={() => {
@@ -190,14 +217,14 @@ const PostTemplate = ({ post, postId }) => {
                 </IconButton>
               </Tooltip>
             )}
-            {user.isLoggedIn && user.user.displayName == who && !editPost && (
+            {user.isLoggedIn && user.user?.displayName == who && !editPost && (
               <Tooltip title="edit post">
                 <IconButton onClick={handleEdit} aria-label="comment">
                   <EditIcon />
                 </IconButton>
               </Tooltip>
             )}
-            {user.isLoggedIn && user.user.displayName == who && editPost && (
+            {user.isLoggedIn && user.user?.displayName == who && editPost && (
               <Tooltip title="edit comment">
                 <IconButton onClick={handleupdate} aria-label="comment">
                   <CommentIcon />

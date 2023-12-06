@@ -1,17 +1,24 @@
-import React, { useState } from "react";
-import instagramPic from "../assets/instgram.png";
+import React, { useEffect, useState } from "react";
+import instagramPic from "../../assets/instgram.png";
 import { Grid, Button } from "@mui/material";
-import LogInPop from "./logInPop";
-import SignUpPop from "./SignUpPop";
-import { useSelector } from "react-redux";
-import { auth } from "../firebase";
-import NewPost from "./newPost";
+import LogInPop from "../../components/logInPop";
+import SignUpPop from "../../components/SignUpPop";
+import { auth } from "../../firebase";
+import NewPost from "../../components/newPost";
+import { RootState, useAppSelector } from "../../REDUX/bigpie";
 
 const Header = () => {
-  const [isHeWantToLog, setIsHeWantToLog] = useState(false);
-  const [isHeWantToSignUp, setisHeWantToSignUp] = useState(false);
-  const [isHeWantToPost, setIsHeWantToPost] = useState(false);
-  const user = useSelector((bigPie) => bigPie.authReducer);
+  const [isHeWantToLog, setIsHeWantToLog] = useState<boolean>(false);
+  const [isHeWantToSignUp, setisHeWantToSignUp] = useState<boolean>(false);
+  const [isHeWantToPost, setIsHeWantToPost] = useState<boolean>(false);
+  const [done, setDonet] = useState(false);
+  const user = useAppSelector((bigPie: RootState) => bigPie.authReducer);
+  console.log("user", user);
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      setDonet(true);
+    } else return;
+  }, [user.isLoggedIn]);
   return (
     <>
       <Grid container spacing={3} className="app_headher">
@@ -34,7 +41,7 @@ const Header = () => {
           sx={{ justifyContent: "center", alignItems: "center" }}
           className="app_text"
         >
-          {user.isLoggedIn ? (
+          {user.isLoggedIn && done && (
             <>
               <Button
                 sx={{ mr: 4 }}
@@ -52,7 +59,8 @@ const Header = () => {
                 add post
               </Button>
             </>
-          ) : (
+          )}
+          {done && !user.isLoggedIn && (
             <>
               <Button
                 sx={{ mr: 4 }}

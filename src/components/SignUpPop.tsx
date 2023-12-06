@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -11,9 +11,13 @@ import firebase from "firebase/compat/app";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db, signInWithGoogle, storage } from "../firebase";
 import { Box, LinearProgress } from "@mui/material";
-
-export default function SignUpPop({ setIsOpen, isOpen }) {
-  const [img, setImg] = useState(null);
+import { set } from "date-fns";
+interface Props {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+}
+const SignUpPop: FC<Props> = (Props) => {
+  const [img, setImg] = useState<null | File>(null);
   const [progress, setProgress] = useState(0);
   const [buffer, setBuffer] = useState(10);
   const [upload, setUpload] = useState(false);
@@ -23,7 +27,7 @@ export default function SignUpPop({ setIsOpen, isOpen }) {
     firstName: "",
     lastName: "",
   });
-  const handleInputsChange = (e) => {
+  const handleInputsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputsValue((currentState) => ({
       //update the state  values
       ...currentState,
@@ -37,58 +41,74 @@ export default function SignUpPop({ setIsOpen, isOpen }) {
         inputsValue.email,
         inputsValue.password
       );
-      const upload = storage.ref(`images/${img.name}`).put(img);
-      upload.on(
-        "state_changed",
-        (snapshot) => {
-          setUpload(true);
+      if (img) {
+        const upload = storage.ref(`images/${img.name}`).put(img);
+        upload.on(
+          "state_changed",
+          (snapshot) => {
+            setUpload(true);
 
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          if (progress == 100) {
-            setProgress(100);
-            setBuffer(10);
-            setIsOpen(false);
-          } else {
-            setProgress(progress);
-            setBuffer(progress + 10);
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            if (progress == 100) {
+              setProgress(100);
+              setBuffer(10);
+              Props.setIsOpen(false);
+            } else {
+              setProgress(progress);
+              setBuffer(progress + 10);
+            }
+          },
+          (error) => {
+            console.log(error);
+          },
+          () => {
+            storage
+              .ref("images")
+              .child(img.name)
+              .getDownloadURL()
+              .then(async (url) => {
+                if (auth.currentUser) {
+                  await updateProfile(auth.currentUser, {
+                    displayName:
+                      inputsValue.firstName + "_" + inputsValue.lastName,
+                    photoURL: url,
+                  });
+                  await setDoc(doc(db, "users", auth.currentUser.uid), {
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    displayName:
+                      inputsValue.firstName + "_" + inputsValue.lastName,
+                    avatar: url,
+                    uid: auth.currentUser.uid,
+                  });
+                  // await setDoc(doc(db, "chats", res.user.uid), {});
+                  await setDoc(doc(db, "userchats", auth.currentUser.uid), {});
+                }
+              });
           }
-        },
-        (error) => {
-          console.log(error);
-        },
-        () => {
-          storage
-            .ref("images")
-            .child(img.name)
-            .getDownloadURL()
-            .then(async (url) => {
-              await updateProfile(auth.currentUser, {
-                displayName: inputsValue.firstName + "_" + inputsValue.lastName,
-                photoURL: url,
-              });
-              await setDoc(doc(db, "users", res.user.uid), {
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                displayName: inputsValue.firstName + "_" + inputsValue.lastName,
-                avatar: url,
-                uid: res.user.uid,
-              });
-              // await setDoc(doc(db, "chats", res.user.uid), {});
-              await setDoc(doc(db, "userchats", res.user.uid), {});
-            });
-        }
-      );
+        );
+      }
     } catch (err) {
       console.log(err);
     }
   };
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target as HTMLInputElement;
+
+    if (inputElement.files) {
+      setImg(inputElement.files[0]);
+    } else {
+      setImg(null);
+    }
+  };
+
   const handleClose = () => {
-    setIsOpen(false);
+    Props.setIsOpen(false);
   };
   return (
     <div>
-      <Dialog open={isOpen} onClose={handleClose}>
+      <Dialog open={Props.isOpen} onClose={handleClose}>
         <DialogTitle>sign up</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -138,7 +158,7 @@ export default function SignUpPop({ setIsOpen, isOpen }) {
           <input
             className="file-input"
             type="file"
-            onChange={(e) => setImg(e.target.files[0])}
+            onChange={(e) => handleUpload(e)}
           />
         </DialogContent>
         <DialogActions>
@@ -148,7 +168,7 @@ export default function SignUpPop({ setIsOpen, isOpen }) {
             sx={{ textDecoration: "none" }}
             onClick={async () => {
               await signInWithGoogle();
-              setIsOpen(false);
+              Props.setIsOpen(false);
             }}
           >
             continue with google
@@ -173,4 +193,5 @@ export default function SignUpPop({ setIsOpen, isOpen }) {
       </Dialog>
     </div>
   );
-}
+};
+export default SignUpPop;
