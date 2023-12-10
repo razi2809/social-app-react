@@ -159,17 +159,16 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
   let doesHeHaveChat;
   let alreadyChattingWithHim;
   for (let userInArr of users) {
-    if(userInArr.uid!=user.user?.uid){
-       doesHeHaveChat = chats.some((chat) =>
-      Object.keys(chat)[0].includes(userInArr.uid)
+    if (userInArr.uid != user.user?.uid) {
+      doesHeHaveChat = chats.some((chat) =>
+        Object.keys(chat)[0].includes(userInArr.uid)
       );
-      arrChats.push(doesHeHaveChat);}
-    if(!doesHeHaveChat){
-      alreadyChattingWithHim = userInArr.uid === userBuddy.user?.uid; 
-       arrChats.push(alreadyChattingWithHim); 
-
+      arrChats.push(doesHeHaveChat);
     }
-
+    if (!doesHeHaveChat) {
+      alreadyChattingWithHim = userInArr.uid === userBuddy.user?.uid;
+      arrChats.push(alreadyChattingWithHim);
+    }
   }
 
   const isThereUserWithoutChat = arrChats.every(Boolean);
@@ -217,28 +216,26 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
             })}
         </TransitionGroup>
         <TransitionGroup>
-
-        {!isThereUserWithoutChat&&
-        <CSSTransition
-        timeout={500}
-        classNames="item"
-      >
-        <Box
-          sx={{
-            width: "100%",
-            borderBottom: "1px solid rgba(0,0,0,0.1)",
-          }}
-        >
-          <Typography
-            variant="h6"
-            color="textSecondary"
-            component="p"
-            textAlign={"center"}
-          >
-            User's whom you don't have chat with
-          </Typography>
-        </Box></CSSTransition>}        </TransitionGroup>
-
+          {!isThereUserWithoutChat && (
+            <CSSTransition timeout={500} classNames="item">
+              <Box
+                sx={{
+                  width: "100%",
+                  borderBottom: "1px solid rgba(0,0,0,0.1)",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color="textSecondary"
+                  component="p"
+                  textAlign={"center"}
+                >
+                  User's whom you don't have chat with
+                </Typography>
+              </Box>
+            </CSSTransition>
+          )}{" "}
+        </TransitionGroup>
 
         <TransitionGroup>
           {users.map((userExist) => {
