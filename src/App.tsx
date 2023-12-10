@@ -11,19 +11,6 @@ import LayoutComponents from "./layout/layoutComponents";
 const App = () => {
   console.log("App");
 
-  /*   const dispatch = useAppDispatch();
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        dispatch(authActions.login(authUser));
-        console.log("authUser", authUser);
-      } else {
-        console.log("noauthUser");
-      }
-    });
-    return unsubscribe;
-  }, []); */
-
   return (
     <div className="app">
       <Router />

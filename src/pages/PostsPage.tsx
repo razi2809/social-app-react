@@ -35,7 +35,6 @@ const PostsPage = () => {
       );
     });
   }, []);
-  console.log(posts);
 
   return (
     <>

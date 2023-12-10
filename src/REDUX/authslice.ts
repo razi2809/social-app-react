@@ -10,7 +10,6 @@ const authSlice = createSlice({
     login: (state, action: PayloadAction<firebase.User | null>) => {
       state.isLoggedIn = true;
       state.user = action.payload;
-      console.log("auth");
     },
     logout: (state) => {
       state.isLoggedIn = false;

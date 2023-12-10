@@ -9,11 +9,12 @@ import LayoutComponents from "./layout/layoutComponents";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <Provider store={store}>
-    <LayoutComponents>
-      <BrowserRouter basename="/social-app-react">
+    {" "}
+    <BrowserRouter basename="/social-app-react">
+      <LayoutComponents>
         <App />
-      </BrowserRouter>
-    </LayoutComponents>
+      </LayoutComponents>
+    </BrowserRouter>
   </Provider>
 );
 // <React.StrictMode>

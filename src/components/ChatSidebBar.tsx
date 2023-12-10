@@ -1,15 +1,7 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { auth, db } from "../firebase";
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  Typography,
-} from "@mui/material";
+import React, { FC, memo, useCallback, useEffect, useState } from "react";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
+import { db } from "../firebase";
+import { Box, Typography } from "@mui/material";
 import {
   DocumentReference,
   DocumentData,
@@ -26,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "../REDUX/bigpie";
 import LoaderComponent from "../layout/LoaderComponent";
 import DisplayUser from "./DisplayUser";
 import DisplayUserChats from "./DisplayUserChats";
+import { log } from "console";
 
 interface ChatUser {
   displayName: string | null;
@@ -49,13 +42,21 @@ type ChatInfo = {
     displayName: string;
   };
 };
-const ChatSideBar = () => {
+type ChatData = {
+  [key: string]: ChatInfo;
+};
+interface Props {
+  chatId: string;
+}
+const ChatSideBar: FC<Props> = ({ chatId }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [chats, setChats] = useState<ChatInfo[]>([]);
+  const [chats, setChats] = useState<ChatData[]>([]);
   const [done, setDone] = useState(false);
   const navigate = useNavigate();
   const user = useAppSelector((bigPie) => bigPie.authReducer);
+  const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const dispatch = useAppDispatch();
+  const MemoDisplayUsers = memo(DisplayUser);
   useEffect(() => {
     db.collection(`users`).onSnapshot((snapshot) => {
       setUsers(
@@ -72,8 +73,19 @@ const ChatSideBar = () => {
         const unsub = onSnapshot(
           doc(db, "userchats", userUid) as DocumentReference<DocumentData>,
           (doc) => {
-            setChats(doc.data() as ChatInfo[]);
-            console.log(doc.data());
+            const chatData = doc.data() as ChatData;
+            let sortedChats = Object.entries(chatData)
+              .filter(([key, chat]) => chat.date && chat.date.seconds) // Ensure date exists and is not null
+              .sort((a, b) => {
+                if (a[1].date && b[1].date) {
+                  const aDate = a[1]?.date?.toDate();
+                  const bDate = b[1]?.date?.toDate();
+                  return bDate.getTime() - aDate.getTime();
+                }
+                return 0;
+              });
+
+            setChats(sortedChats.map(([key, value]) => ({ [key]: value })));
             setDone(true);
           }
         );
@@ -87,9 +99,7 @@ const ChatSideBar = () => {
       user.user?.uid && getChat();
     }
   }, [user.isLoggedIn]);
-  const handleClick = async (userBuddy: User) => {
-    console.log("handleClick");
-
+  const handleClick = useCallback(async (userBuddy: User) => {
     const userUid = user.user?.uid;
     if (userUid && userBuddy.uid === userUid) return;
     //check whether the group is already created or not, if not create
@@ -98,6 +108,7 @@ const ChatSideBar = () => {
         userUid > userBuddy.uid
           ? userUid + userBuddy.uid
           : userBuddy.uid + user.user.uid;
+      navigate(`/chat/chatuid?uid=${combinedUsersId}`);
       try {
         const res = await getDoc(doc(db, "chats", combinedUsersId));
 
@@ -106,6 +117,7 @@ const ChatSideBar = () => {
           await setDoc(doc(db, `chats`, combinedUsersId), {
             messages: [],
           });
+
           await updateDoc(doc(db, `userchats`, user.user.uid), {
             [combinedUsersId + ".userInfo"]: {
               uid: userBuddy.uid,
@@ -131,7 +143,6 @@ const ChatSideBar = () => {
             },
           });
         }
-        navigate(`/chat/chatuid?uid=${combinedUsersId}`);
         dispatch(
           chatActions.selectedUser({
             displayName: userBuddy.displayName,
@@ -143,38 +154,119 @@ const ChatSideBar = () => {
         console.log(err);
       }
     }
-  };
+  }, []);
+  let arrChats = [];
+  let doesHeHaveChat;
+  let alreadyChattingWithHim;
+  for (let userInArr of users) {
+    if(userInArr.uid!=user.user?.uid){
+       doesHeHaveChat = chats.some((chat) =>
+      Object.keys(chat)[0].includes(userInArr.uid)
+      );
+      arrChats.push(doesHeHaveChat);}
+    if(!doesHeHaveChat){
+      alreadyChattingWithHim = userInArr.uid === userBuddy.user?.uid; 
+       arrChats.push(alreadyChattingWithHim); 
 
-  const openChat = (chatId: string, userBuddy: ChatUser) => {
+    }
+
+  }
+
+  const isThereUserWithoutChat = arrChats.every(Boolean);
+
+  const openChat = useCallback((chatId: string, userBuddy: ChatUser) => {
     dispatch(chatActions.selectedUser(userBuddy));
     navigate(`/chat/chatuid?uid=${chatId}`);
-  };
+  }, []);
 
   if (done) {
     return (
       <Box>
-        {users.map((userExist) => {
-          const doesHeHaveChat = Object.entries(chats).some(
-            (chat) => chat[1].userInfo.uid === userExist.uid
-          );
-          return (
-            <DisplayUser
-              key={userExist.uid}
-              user={userExist}
-              display={userExist.uid !== user.user?.uid}
-              handleOpenChat={() => handleClick(userExist)}
-              doesHeHaveChat={doesHeHaveChat}
-            />
-          );
-        })}
-        {chats &&
-          Object.entries(chats).map((chat) => (
-            <DisplayUserChats
-              chats={chat}
-              key={chat[0]}
-              handleOpenChat={() => openChat(chat[0], chat[1].userInfo)}
-            />
-          ))}
+        <Box
+          sx={{
+            width: "100%",
+
+            borderBottom: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            component="p"
+            textAlign={"center"}
+          >
+            Existing Chats
+          </Typography>
+        </Box>
+        <TransitionGroup>
+          {chats &&
+            chats.map((chat) => {
+              const key = Object.keys(chat)[0];
+
+              return (
+                <CSSTransition key={key} timeout={500} classNames="item">
+                  <DisplayUserChats
+                    chats={chat[key]}
+                    chatIsOpen={key === chatId}
+                    key={key}
+                    id={key}
+                    handleOpenChat={() => openChat(key, chat[key].userInfo)}
+                  />
+                </CSSTransition>
+              );
+            })}
+        </TransitionGroup>
+        <TransitionGroup>
+
+        {!isThereUserWithoutChat&&
+        <CSSTransition
+        timeout={500}
+        classNames="item"
+      >
+        <Box
+          sx={{
+            width: "100%",
+            borderBottom: "1px solid rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            component="p"
+            textAlign={"center"}
+          >
+            User's whom you don't have chat with
+          </Typography>
+        </Box></CSSTransition>}        </TransitionGroup>
+
+
+        <TransitionGroup>
+          {users.map((userExist) => {
+            const doesHeHaveChat = chats.some((chat) =>
+              Object.keys(chat)[0].includes(userExist.uid)
+            );
+            const alreadyChattingWithHim =
+              userExist.uid === userBuddy.user?.uid || "";
+            if (!alreadyChattingWithHim) {
+              if (!doesHeHaveChat) {
+                return (
+                  <CSSTransition
+                    key={userExist.uid}
+                    timeout={500}
+                    classNames="item"
+                  >
+                    <MemoDisplayUsers
+                      user={userExist}
+                      display={userExist.uid !== user.user?.uid}
+                      handleOpenChat={() => handleClick(userExist)}
+                    />
+                  </CSSTransition>
+                );
+              }
+            }
+            return null;
+          })}
+        </TransitionGroup>
       </Box>
     );
   } else {
@@ -183,43 +275,3 @@ const ChatSideBar = () => {
 };
 
 export default ChatSideBar;
-/*      <Card sx={{ borderRadius: 2 }} >
-              <Grid container>
-                <Grid item container md={12}>
-                  <CardHeader
-                    avatar={<Avatar src={chat[1].userInfo.photourl} />}
-                    title={chat[1].userInfo.displayName}
-                    sx={{ p: 1 }}
-                  />
-                </Grid>
-
-                <Grid item md={12}>
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      color="textSecondary"
-                      component="p"
-                    >
-                      {chat[1].lastMessage
-                        ? chat[1].lastMessage.text
-                        : "no message"}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
-                      {chat[1].lastMessage
-                        ? chat[1].lastMessage.text
-                        : "no message"}
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      onClick={() => openChat(chat[0], chat[1].userInfo)}
-                    >
-                      openChat
-                    </Button>
-                  </CardContent>
-                </Grid>
-              </Grid>
-            </Card> */

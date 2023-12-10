@@ -10,6 +10,7 @@ const chatSlice = createSlice({
   reducers: {
     selectedUser: (state, action: PayloadAction<Props>) => {
       state.user = action.payload;
+      localStorage.setItem("User", JSON.stringify(action.payload));
     },
   },
 });

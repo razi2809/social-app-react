@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -9,13 +8,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { FC, useState } from "react";
+import React, { FC, memo, useState } from "react";
 import { useAppSelector } from "../REDUX/bigpie";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
-import firebase from "firebase/compat/app";
-
 import {
   Timestamp,
   arrayUnion,
@@ -23,23 +20,29 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { type } from "os";
 import { useSearchParams } from "react-router-dom";
-interface Chat {
-  date: firebase.firestore.Timestamp;
-  lastMessage: {
-    text: string;
-  };
-  userInfo: {
-    displayName: string;
-    photourl: string;
-    uid: string;
-  };
-}
-type Props = {
-  chatInfo: Chat[];
-};
-const ChatInput: FC<Props> = (chatInfo) => {
+import styled from "@emotion/styled";
+const InputWrapper = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  padding: "1.5rem", // Increased padding for a more comfortable feel
+  borderTop: "1px solid #eee",
+  backgroundColor: "#fff", // White background
+  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)", // Subtle box shadow
+  borderRadius: "12px", // Rounded corners
+});
+
+const StyledTextField = styled(TextField)({
+  flexGrow: 1,
+  marginRight: "1.5rem", // Increased margin for better spacing
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "8px", // Slightly rounded input field
+  },
+});
+
+const ChatInput: FC = () => {
+  console.log("Chat input");
+
   const [searchParams] = useSearchParams();
   const chatId: string = searchParams.get("uid")!;
   const [img, setImg] = useState<null | File>(null);
@@ -104,6 +107,8 @@ const ChatInput: FC<Props> = (chatInfo) => {
               });
             }
             if (chatBuddy.user) {
+              console.log(chatBuddy.user.uid);
+
               await updateDoc(doc(db, `userchats`, chatBuddy.user.uid), {
                 [chatId + ".lastMessage"]: {
                   text: message,
@@ -143,7 +148,7 @@ const ChatInput: FC<Props> = (chatInfo) => {
     }
   };
   return (
-    <Card sx={{ borderRadius: 2 }}>
+    <Card sx={{ borderRadius: 12, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
       <CardHeader
         avatar={
           <Avatar
@@ -158,25 +163,62 @@ const ChatInput: FC<Props> = (chatInfo) => {
         <Typography variant="h6" color="textSecondary" component="p">
           {chatBuddy.user?.displayName}
         </Typography>
-        {chatInfo && (
-          <Typography variant="body2" color="textSecondary" component="p">
-            {chatInfo.chatInfo[0]?.lastMessage.text}
-          </Typography>
-        )}
-      </CardContent>{" "}
-      <TextField
-        variant="standard"
-        value={editText}
-        onChange={(e) => setEditText(e.target.value)}
-      />
-      <input
-        className="file-input"
-        type="file"
-        onChange={(e) => handleUpload(e)}
-      />
-      <Button variant="contained" onClick={() => sendMessage(chatId, editText)}>
-        send
-      </Button>
+      </CardContent>
+      <InputWrapper>
+        <StyledTextField
+          variant="outlined" // Outlined variant for a cleaner look
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          placeholder="Type a message..."
+        />
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: !img ? "pointer" : "default",
+            borderRadius: 2,
+            ":hover": {
+              backgroundColor: !img ? "#eee" : "white",
+            },
+          }}
+        >
+          <label htmlFor="file-input">
+            <span role="img" aria-label="Attach File">
+              📎
+            </span>
+          </label>
+          <input
+            id="file-input"
+            style={{ display: "none" }}
+            className="file-input"
+            type="file"
+            onChange={(e) => handleUpload(e)}
+          />
+        </Box>
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: img || !!editText.trim().length ? "pointer" : "default",
+            borderRadius: 2,
+            ":hover": {
+              backgroundColor:
+                img || !!editText.trim().length ? "#eee" : "white",
+            },
+          }}
+          onClick={() => sendMessage(chatId, editText)}
+        >
+          <span role="img" aria-label="Attach File">
+            📎
+          </span>
+        </Box>
+      </InputWrapper>
       {upload && (
         <Box sx={{ width: "100%" }}>
           <LinearProgress

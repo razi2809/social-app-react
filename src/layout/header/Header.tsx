@@ -14,7 +14,6 @@ const Header: FC<{ done: Boolean }> = ({ done }) => {
   const [isHeWantToPost, setIsHeWantToPost] = useState<boolean>(false);
   const user = useAppSelector((bigPie: RootState) => bigPie.authReducer);
   const dispatch = useAppDispatch();
-  console.log("user", user);
   const signOut = () => {
     auth.signOut();
     dispatch(authActions.logout());
