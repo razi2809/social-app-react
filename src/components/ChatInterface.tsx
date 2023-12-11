@@ -15,16 +15,15 @@ const ChatInterface = () => {
 
   return (
     <Grid container sx={{ height: "100vh" }}>
-      <Grid item sm={4} xs={12} md={4}>
+      <Grid item sm={4} xs={12} md={3}>
         {" "}
-        <ChatHeader />
         <ChatSideBar chatId={chatId} />
       </Grid>
       <Grid
         item
         sm={8}
         xs={12}
-        md={8}
+        md={9}
         sx={{
           height: "100%",
           display: "flex",
@@ -33,32 +32,29 @@ const ChatInterface = () => {
         }}
       >
         {" "}
-        <ChatHeader />
         {chatId && (
           <Fragment>
+            <Box>{/* <ChatHeader /> */}</Box>
             <Box
               sx={{
                 overflowY: "auto",
                 flexGrow: 1,
                 "&::-webkit-scrollbar": {
-                  width: "0", // Set the width to 0 to hide the scrollbar
+                  width: "0",
                 },
                 "&::-webkit-scrollbar-thumb": {
-                  background: "transparent", // Set the thumb color to transparent
+                  background: "transparent",
                   borderRadius: "5px",
                 },
                 "&:hover::-webkit-scrollbar-thumb": {
-                  background: "#888", // Change thumb color on hover (optional)
+                  background: "#888",
                 },
                 "&:hover::-webkit-scrollbar": {
-                  width: "10px", // Show scrollbar on hover (optional)
+                  width: "10px",
                 },
-                // backgroundColor: "#f1f1f1", // Background color for the scrollbar container
               }}
             >
-              <Box>
-                <ChatTemplat />
-              </Box>
+              <ChatTemplat />
             </Box>
             <Box>
               <MemoChatInput />

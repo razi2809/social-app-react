@@ -12,6 +12,7 @@ const Router = () => {
   return (
     <Routes>
       <Route index element={<Directing />} />;
+      <Route path={ROUTES.HOME} element={<PostsPage />} />
       <Route path={ROUTES.POSTS} element={<PostsPage />} />;
       <Route path={ROUTES.CHAT}>
         <Route index element={<ChatInterface />} />

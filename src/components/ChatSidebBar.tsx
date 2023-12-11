@@ -19,6 +19,7 @@ import LoaderComponent from "../layout/LoaderComponent";
 import DisplayUser from "./DisplayUser";
 import DisplayUserChats from "./DisplayUserChats";
 import { log } from "console";
+import ChatHeader from "./ChatHeader";
 
 interface ChatUser {
   displayName: string | null;
@@ -52,6 +53,8 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [chats, setChats] = useState<ChatData[]>([]);
   const [done, setDone] = useState(false);
+  const [isHeWantNewChat, setIsHeWantNewChat] = useState(false);
+
   const navigate = useNavigate();
   const user = useAppSelector((bigPie) => bigPie.authReducer);
   const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
@@ -171,7 +174,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
     }
   }
 
-  const isThereUserWithoutChat = arrChats.every(Boolean);
+  const isHeChattingWithAll = arrChats.every(Boolean);
 
   const openChat = useCallback((chatId: string, userBuddy: ChatUser) => {
     dispatch(chatActions.selectedUser(userBuddy));
@@ -181,89 +184,97 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
   if (done) {
     return (
       <Box>
-        <Box
-          sx={{
-            width: "100%",
+        <ChatHeader
+          isHeWantNewChat={isHeWantNewChat}
+          setIsHeWantNewChat={setIsHeWantNewChat}
+          isThereUserWithoutChat={isHeChattingWithAll}
+        />
+        <Box>
+          <Box
+            sx={{
+              width: "100%",
 
-            borderBottom: "1px solid rgba(0,0,0,0.1)",
-          }}
-        >
-          <Typography
-            variant="h6"
-            color="textSecondary"
-            component="p"
-            textAlign={"center"}
+              borderBottom: "1px solid rgba(0,0,0,0.1)",
+            }}
           >
-            Existing Chats
-          </Typography>
-        </Box>
-        <TransitionGroup>
-          {chats &&
-            chats.map((chat) => {
-              const key = Object.keys(chat)[0];
+            <Typography
+              variant="h6"
+              color="textSecondary"
+              component="p"
+              textAlign={"center"}
+            >
+              Existing Chats
+            </Typography>
+          </Box>
+          <TransitionGroup>
+            {chats &&
+              chats.map((chat) => {
+                const key = Object.keys(chat)[0];
 
-              return (
-                <CSSTransition key={key} timeout={500} classNames="item">
-                  <DisplayUserChats
-                    chats={chat[key]}
-                    chatIsOpen={key === chatId}
-                    key={key}
-                    id={key}
-                    handleOpenChat={() => openChat(key, chat[key].userInfo)}
-                  />
-                </CSSTransition>
-              );
-            })}
-        </TransitionGroup>
-        <TransitionGroup>
-          {!isThereUserWithoutChat && (
-            <CSSTransition timeout={500} classNames="item">
-              <Box
-                sx={{
-                  width: "100%",
-                  borderBottom: "1px solid rgba(0,0,0,0.1)",
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  component="p"
-                  textAlign={"center"}
-                >
-                  User's whom you don't have chat with
-                </Typography>
-              </Box>
-            </CSSTransition>
-          )}{" "}
-        </TransitionGroup>
-
-        <TransitionGroup>
-          {users.map((userExist) => {
-            const doesHeHaveChat = chats.some((chat) =>
-              Object.keys(chat)[0].includes(userExist.uid)
-            );
-            const alreadyChattingWithHim =
-              userExist.uid === userBuddy.user?.uid || "";
-            if (!alreadyChattingWithHim) {
-              if (!doesHeHaveChat) {
                 return (
-                  <CSSTransition
-                    key={userExist.uid}
-                    timeout={500}
-                    classNames="item"
-                  >
-                    <MemoDisplayUsers
-                      user={userExist}
-                      display={userExist.uid !== user.user?.uid}
-                      handleOpenChat={() => handleClick(userExist)}
+                  <CSSTransition key={key} timeout={500} classNames="item">
+                    <DisplayUserChats
+                      chats={chat[key]}
+                      chatIsOpen={key === chatId}
+                      key={key}
+                      id={key}
+                      handleOpenChat={() => openChat(key, chat[key].userInfo)}
                     />
                   </CSSTransition>
                 );
-              }
-            }
-            return null;
-          })}
-        </TransitionGroup>
+              })}
+          </TransitionGroup>
+          <TransitionGroup>
+            {!isHeChattingWithAll && isHeWantNewChat && (
+              <CSSTransition timeout={500} classNames="item">
+                <Box
+                  sx={{
+                    width: "100%",
+                    borderBottom: "1px solid rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    color="textSecondary"
+                    component="p"
+                    textAlign={"center"}
+                  >
+                    User's whom you don't have chat with
+                  </Typography>
+                </Box>
+              </CSSTransition>
+            )}{" "}
+          </TransitionGroup>
+
+          <TransitionGroup>
+            {isHeWantNewChat &&
+              users.map((userExist) => {
+                const doesHeHaveChat = chats.some((chat) =>
+                  Object.keys(chat)[0].includes(userExist.uid)
+                );
+                const alreadyChattingWithHim =
+                  userExist.uid === userBuddy.user?.uid || "";
+                if (!alreadyChattingWithHim) {
+                  if (!doesHeHaveChat) {
+                    return (
+                      <CSSTransition
+                        key={userExist.uid}
+                        timeout={500}
+                        classNames="item"
+                      >
+                        <MemoDisplayUsers
+                          user={userExist}
+                          display={userExist.uid !== user.user?.uid}
+                          handleOpenChat={() => handleClick(userExist)}
+                        />
+                      </CSSTransition>
+                    );
+                  }
+                }
+                return null;
+              })}
+          </TransitionGroup>
+        </Box>
       </Box>
     );
   } else {

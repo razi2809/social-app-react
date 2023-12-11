@@ -1,34 +1,58 @@
-import * as React from "react";
+import React, { Dispatch, FC, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
-
+import { useAppSelector } from "../REDUX/bigpie";
+import CommentIcon from "@mui/icons-material/Comment";
+import { MenuItem } from "@mui/material";
+import ThemeSwitcher from "../layout/ThemeSwitcher";
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
+interface Props {
+  isHeWantNewChat: boolean;
+  setIsHeWantNewChat: Dispatch<React.SetStateAction<boolean>>;
+  isThereUserWithoutChat: boolean;
+}
+const ChatHeader: FC<Props> = ({
+  isHeWantNewChat,
+  setIsHeWantNewChat,
+  isThereUserWithoutChat,
+}) => {
+  const user = useAppSelector((bigPie) => bigPie.authReducer);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-function ChatHeader() {
-  console.log("i have rederd");
-
+  const HeWantNewChat = () => {
+    if (!isThereUserWithoutChat) {
+      setIsHeWantNewChat(true);
+    } else {
+      console.log("you have chat with all of the users");
+    }
+  };
   return (
     <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+      <Container
+        maxWidth="xl"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -39,102 +63,61 @@ function ChatHeader() {
               textDecoration: "none",
             }}
           >
-            LOGO
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-              open={false}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+            Chats
+          </Typography>{" "}
+        </Box>
+        <Box sx={{ flexGrow: 0 }}>
+          {" "}
+          {!isHeWantNewChat && (
+            <Tooltip title="new chat">
+              <IconButton sx={{ p: 2 }} onClick={() => HeWantNewChat()}>
+                <CommentIcon />
               </IconButton>
             </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={false}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
+          )}
+          {isHeWantNewChat && (
+            <Tooltip title="close new chat">
+              <IconButton
+                sx={{ p: 2 }}
+                onClick={() => setIsHeWantNewChat(!isHeWantNewChat)}
+              >
+                <CommentIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          <Tooltip title="Open settings">
+            <IconButton sx={{ p: 2 }} onClick={handleMenu}>
+              <Avatar alt="user profile" src={user.user?.photoURL ?? ""} />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            sx={{ mt: "45px" }}
+            anchorEl={anchorEl}
+            id="menu-appbar"
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            {" "}
+            <Box sx={{ display: "flex" }}>
+              <Typography variant="h6" sx={{ p: 1 }}>
+                theme:
+              </Typography>
+              <ThemeSwitcher />
+            </Box>
+            <MenuItem onClick={handleClose}>My account</MenuItem>
+          </Menu>
+        </Box>
       </Container>
     </AppBar>
   );
-}
+};
 export default ChatHeader;

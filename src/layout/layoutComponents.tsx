@@ -6,6 +6,8 @@ import { authActions } from "../REDUX/authslice";
 import LoaderComponent from "./LoaderComponent";
 import { chatActions } from "../REDUX/chatSlice";
 import { useLocation } from "react-router-dom";
+import useLogin from "../hooks/useLogin";
+import useUserTheme from "../hooks/useTheme";
 type Props = {
   children: React.ReactNode;
 };
@@ -15,26 +17,11 @@ interface User {
   uid: string;
 }
 const LayoutComponents: FC<Props> = ({ children }) => {
-  const dispatch = useAppDispatch();
-  const [done, setDone] = useState(false);
   const { pathname } = useLocation();
   const [show, setShow] = useState(true);
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        dispatch(authActions.login(authUser));
-        const userJson = localStorage.getItem("User");
-        const UserBuddy: User | null = userJson ? JSON.parse(userJson) : null;
-        if (UserBuddy) {
-          dispatch(chatActions.selectedUser(UserBuddy));
-        }
-        setDone(true);
-      } else {
-        setDone(true);
-      }
-    });
-    return unsubscribe;
-  }, []);
+  const isDone = useLogin();
+  const theme = useUserTheme(isDone);
+  console.log(theme);
 
   useEffect(() => {
     if (pathname === "/chat" || pathname === "/chat/chatuid") {
@@ -43,10 +30,10 @@ const LayoutComponents: FC<Props> = ({ children }) => {
       setShow(true);
     }
   }, [pathname]);
-  if (done) {
+  if (isDone && theme) {
     return (
       <div>
-        {show && <Header done={done} />}
+        {show && <Header done={isDone} />}
         <div>{children}</div>
       </div>
     );

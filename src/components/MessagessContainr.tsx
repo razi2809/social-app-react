@@ -1,5 +1,5 @@
 import { Box, Grid } from "@mui/material";
-import React, { FC, Fragment, useEffect, useState } from "react";
+import React, { FC, Fragment, useEffect, useRef, useState } from "react";
 import MessageTamplate from "./messageTamplate";
 import firebase from "firebase/compat/app";
 import { useAppSelector } from "../REDUX/bigpie";
@@ -19,21 +19,29 @@ type Props = {
 };
 
 const MessagessContainr: FC<Props> = ({ messages }) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
-
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   return (
-    <Box>
-      {messages &&
-        messages.length > 0 &&
-        messages.map((message) => (
+    <Box className="message-list">
+      {messages.map((m, index) => (
+        <div
+          key={m.id}
+          ref={index === messages.length - 1 ? messagesEndRef : null}
+        >
           <MessageTamplate
-            message={message}
-            key={message.id}
-            didISend={message.senderId != chatBuddy.user?.uid ? true : false}
+            message={m}
+            didISend={m.senderId != chatBuddy.user?.uid ? true : false}
             user={user.user}
           />
-        ))}
+        </div>
+      ))}
     </Box>
   );
 };
