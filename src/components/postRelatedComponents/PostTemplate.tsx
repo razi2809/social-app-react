@@ -17,12 +17,12 @@ import {
   Box,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import firebase from "firebase/compat/app";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CommentsTamplate from "./CommentsTamplate";
 import EditIcon from "@mui/icons-material/Edit";
-import { useAppSelector } from "../REDUX/bigpie";
+import { useAppSelector } from "../../REDUX/bigpie";
 interface Props {
   postId: string;
   post: {

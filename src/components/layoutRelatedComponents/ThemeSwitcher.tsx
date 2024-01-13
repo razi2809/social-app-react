@@ -3,9 +3,9 @@ import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch, { SwitchProps } from "@mui/material/Switch";
-import { auth, db } from "../firebase";
+import { auth, db } from "../../firebase";
 import { updateProfile } from "firebase/auth";
-import { useAppSelector } from "../REDUX/bigpie";
+import { useAppSelector } from "../../REDUX/bigpie";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,

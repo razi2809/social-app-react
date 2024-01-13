@@ -1,11 +1,9 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { Route, Routes } from "react-router-dom";
-import ChatSidebBar from "../components/ChatSidebBar";
 import PostsPage from "../pages/PostsPage";
 import Directing from "../pages/Directing";
 import ROUTES from "./ROUTES";
-import ChatTamplat from "../components/chatTemplat";
-import ChatInterface from "../components/ChatInterface";
+import ChatInterface from "../components/chatRelatedComponents/ChatInterface";
 const Router = () => {
   console.log("i have rederd");
 

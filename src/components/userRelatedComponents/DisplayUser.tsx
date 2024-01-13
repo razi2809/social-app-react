@@ -37,21 +37,22 @@ const DisplayUser: React.FC<DisplayUserProps> = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            minHeight: 60, // Set a minimum height
-            maxHeight: 100, // Set a maximum height or adjust as needed
+            minHeight: 60,
+            maxHeight: 100,
             alignItems: "center",
-            padding: "10px", // Add padding for a more comfortable feel
+            padding: "10px",
             ":hover": {
               backgroundColor: "rgba(32, 40, 77, 0.3)",
             },
-            borderRadius: "8px", // Add rounded corners for a softer look
-            // border: "none",
+            borderRadius: "8px",
+
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-            // transition: "background-color 0.3s, box-shadow 0.3s",
-            // padding: "12px", // Add padding for a more comfortable feel
           }}
         >
           <Avatar
+            sx={{
+              position: "static",
+            }}
             src={user.avatar}
             alt={user.displayName}
             style={{ margin: "10px" }}

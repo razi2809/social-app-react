@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import PostTemplate from "../components/PostTemplate";
+import PostTemplate from "../components/postRelatedComponents/PostTemplate";
 import firebase from "firebase/compat/app";
 
 interface Post {

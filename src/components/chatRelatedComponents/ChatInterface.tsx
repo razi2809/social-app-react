@@ -3,7 +3,6 @@ import React, { Fragment, memo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatSideBar from "./ChatSidebBar";
 import ChatTemplat from "./chatTemplat";
-import ChatHeader from "./ChatHeader";
 import ChatInput from "./ChatInput";
 
 const ChatInterface = () => {
@@ -11,11 +10,17 @@ const ChatInterface = () => {
   const chatId: string = searchParams.get("uid")!;
   const MemoChatInput = memo(ChatInput);
 
-  console.log("i have rederd");
-
   return (
     <Grid container sx={{ height: "100vh" }}>
-      <Grid item sm={4} xs={12} md={3}>
+      <Grid
+        item
+        sm={4}
+        xs={12}
+        md={3}
+        sx={{
+          bgcolor: "divider",
+        }}
+      >
         {" "}
         <ChatSideBar chatId={chatId} />
       </Grid>
@@ -29,36 +34,23 @@ const ChatInterface = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          bgcolor: "divider",
         }}
       >
         {" "}
         {chatId && (
           <Fragment>
-            <Box>{/* <ChatHeader /> */}</Box>
             <Box
               sx={{
-                overflowY: "auto",
+                // overflowY: "auto",
                 flexGrow: 1,
-                "&::-webkit-scrollbar": {
-                  width: "0",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "transparent",
-                  borderRadius: "5px",
-                },
-                "&:hover::-webkit-scrollbar-thumb": {
-                  background: "#888",
-                },
-                "&:hover::-webkit-scrollbar": {
-                  width: "10px",
-                },
               }}
             >
               <ChatTemplat />
             </Box>
-            <Box>
+            {/*  <Box>
               <MemoChatInput />
-            </Box>{" "}
+            </Box>{" "} */}
           </Fragment>
         )}
       </Grid>

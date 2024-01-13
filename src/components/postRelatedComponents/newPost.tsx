@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Grid from "@mui/material/Grid";
 import { Button, LinearProgress, Box, Dialog } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import { storage, db, auth } from "../firebase";
+import { storage, db, auth } from "../../firebase";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 import "firebase/compat/firestore";
@@ -26,7 +26,6 @@ const NewPost = ({ setIsOpen, isOpen }: Props) => {
     }
   };
   const addPost = () => {
-    console.log(auth.currentUser?.photoURL);
     if (img) {
       const upload = storage.ref(`images/${img.name}`).put(img);
       upload.on(

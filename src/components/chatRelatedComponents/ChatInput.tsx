@@ -8,11 +8,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { FC, memo, useState } from "react";
-import { useAppSelector } from "../REDUX/bigpie";
+import React, { FC, useState } from "react";
+import { useAppSelector } from "../../REDUX/bigpie";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { db, storage } from "../firebase";
+import { db, storage } from "../../firebase";
 import { v4 as uuid } from "uuid";
+
 import {
   Timestamp,
   arrayUnion,
@@ -37,19 +38,18 @@ const StyledTextField = styled(TextField)({
   marginRight: "1.5rem", // Increased margin for better spacing
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px", // Slightly rounded input field
+    // borderColor: "divider", // Darker border when focused
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "divider", // Darker border when focused
   },
 });
 
 const ChatInput: FC = () => {
-  console.log("Chat input");
-
   const [searchParams] = useSearchParams();
   const chatId: string = searchParams.get("uid")!;
   const [img, setImg] = useState<null | File>(null);
   const [editText, setEditText] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [buffer, setBuffer] = useState(10);
-  const [upload, setUpload] = useState(false);
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,19 +66,7 @@ const ChatInput: FC = () => {
       const uploadTask = uploadBytesResumable(storageRef, img);
       uploadTask.on(
         "state_changed",
-        (snapshot) => {
-          // Observe state change events such as progress, pause, and resume
-          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-          setUpload(true);
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          if (progress == 100) {
-            setProgress(100);
-            setBuffer(10);
-            setUpload(false);
-          }
-        },
+        (snapshot) => {},
         (error) => {
           // Handle unsuccessful uploads
           console.log(error);
@@ -94,6 +82,7 @@ const ChatInput: FC = () => {
                 messages: arrayUnion({
                   id: uuid(),
                   text: message,
+                  image: downloadURL,
                   senderId: user.user?.uid,
                   date: Timestamp.now(),
                   Image: downloadURL,
@@ -107,8 +96,6 @@ const ChatInput: FC = () => {
               });
             }
             if (chatBuddy.user) {
-              console.log(chatBuddy.user.uid);
-
               await updateDoc(doc(db, `userchats`, chatBuddy.user.uid), {
                 [chatId + ".lastMessage"]: {
                   text: message,
@@ -148,7 +135,13 @@ const ChatInput: FC = () => {
     }
   };
   return (
-    <Card sx={{ borderRadius: 12, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
+    <Card
+      sx={{
+        borderRadius: 12,
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+        bgcolor: "divider",
+      }}
+    >
       <CardHeader
         avatar={
           <Avatar
@@ -157,10 +150,10 @@ const ChatInput: FC = () => {
           />
         }
         title={chatBuddy.user?.displayName}
-        sx={{ p: 1 }}
+        sx={{ p: 1, color: "text.hover" }}
       />
       <CardContent>
-        <Typography variant="h6" color="textSecondary" component="p">
+        <Typography variant="h6" color="text.hover" component="p">
           {chatBuddy.user?.displayName}
         </Typography>
       </CardContent>
@@ -185,13 +178,13 @@ const ChatInput: FC = () => {
             },
           }}
         >
-          <label htmlFor="file-input">
+          <label htmlFor="file-input-message">
             <span role="img" aria-label="Attach File">
               📎
             </span>
           </label>
           <input
-            id="file-input"
+            id="file-input-message"
             style={{ display: "none" }}
             className="file-input"
             type="file"
@@ -219,15 +212,6 @@ const ChatInput: FC = () => {
           </span>
         </Box>
       </InputWrapper>
-      {upload && (
-        <Box sx={{ width: "100%" }}>
-          <LinearProgress
-            variant="buffer"
-            value={progress}
-            valueBuffer={buffer}
-          />
-        </Box>
-      )}
     </Card>
   );
 };

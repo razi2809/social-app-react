@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import { updateProfile } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db, signInWithGoogle, storage } from "../firebase";
+import { auth, db, signInWithGoogle, storage } from "../../firebase";
 import { Box, LinearProgress } from "@mui/material";
 import { set } from "date-fns";
 interface Props {
@@ -72,13 +72,13 @@ const SignUpPop: FC<Props> = (Props) => {
                 if (auth.currentUser) {
                   await updateProfile(auth.currentUser, {
                     displayName:
-                      inputsValue.firstName + "_" + inputsValue.lastName,
+                      inputsValue.firstName + " " + inputsValue.lastName,
                     photoURL: url,
                   });
                   await setDoc(doc(db, "users", auth.currentUser.uid), {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     displayName:
-                      inputsValue.firstName + "_" + inputsValue.lastName,
+                      inputsValue.firstName + " " + inputsValue.lastName,
                     avatar: url,
                     uid: auth.currentUser.uid,
                   });

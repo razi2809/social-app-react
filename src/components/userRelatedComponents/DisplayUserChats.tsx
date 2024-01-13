@@ -53,8 +53,8 @@ const DisplayUserChats: React.FC<Props> = ({
         cursor: "pointer",
         height: "100%",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-        padding: "12px", // Add padding for a more comfortable feel
-        borderRadius: "8px", // Add rounded corners for a softer look
+        padding: "12px",
+        borderRadius: "8px",
         mb: 1,
       }}
     >
@@ -62,23 +62,28 @@ const DisplayUserChats: React.FC<Props> = ({
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          minHeight: 60, // Set a minimum height
-          maxHeight: 100, // Set a maximum height or adjust as needed
+          minHeight: 60,
+          maxHeight: 100,
           alignItems: "center",
           padding: "10px",
-          backgroundColor: chatIsOpen ? "#5267DB" : "white",
+          backgroundColor: chatIsOpen ? "userChat.active" : "userChat.noActive",
           ":hover": {
-            backgroundColor: chatIsOpen ? "#5267DB" : "rgba(32, 40, 77, 0.3)",
+            backgroundColor: chatIsOpen
+              ? "userChat.active"
+              : "rgba(32, 40, 77, 0.3)",
+            color: "text.hover",
           },
-          borderRadius: "8px", // Add rounded corners for a softer look
-          // border: "none",
-          boxShadow: chatIsOpen ? "0px 4px 8px rgba(0, 0, 0, 0.1)" : "none",
-          // transition: "background-color 0.3s, box-shadow 0.3s",
-          // padding: "12px", // Add padding for a more comfortable feel
+          borderRadius: "8px",
+          boxShadow: chatIsOpen ? "userChat.hover" : "none",
+
+          color: chatIsOpen ? "text.hover" : "text.primary",
         }}
       >
         <Avatar
-          sx={{ marginRight: "auto" }}
+          sx={{
+            marginRight: "auto",
+            position: "static",
+          }}
           src={chats.userInfo.photourl}
           alt={chats.userInfo.displayName}
           style={{ margin: "10px" }}

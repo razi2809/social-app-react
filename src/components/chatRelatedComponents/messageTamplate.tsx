@@ -1,18 +1,8 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import React, { FC, useEffect, useState } from "react";
-import { useAppSelector } from "../REDUX/bigpie";
+import { Avatar, Box, Typography } from "@mui/material";
+import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
+import { useAppSelector } from "../../REDUX/bigpie";
 import firebase from "firebase/compat/app";
-import LoaderComponent from "../layout/LoaderComponent";
-import { ArrowRightAlt } from "@mui/icons-material";
+
 interface Props {
   message: {
     date: firebase.firestore.Timestamp;
@@ -20,11 +10,18 @@ interface Props {
     senderId: string;
     id: string;
     Image?: string;
+    blurhash?: string;
   };
   didISend: boolean;
   user: firebase.User | null;
+  onImageLoad: () => void;
 }
-const MessageTamplate: FC<Props> = ({ message, didISend, user }) => {
+const MessageTemplate: FC<Props> = ({
+  message,
+  didISend,
+  user,
+  onImageLoad,
+}) => {
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const time = message.date.toDate().toLocaleTimeString([], {
     hour: "2-digit",
@@ -42,6 +39,7 @@ const MessageTamplate: FC<Props> = ({ message, didISend, user }) => {
           marginRight: didISend ? "1em" : "0px",
           marginLeft: !didISend ? "1em" : "0px",
         }}
+        // ref={!imgLoading ? (index === "last" ? lastMessageRef : null) : null}
       >
         {!didISend && (
           <Avatar
@@ -57,11 +55,28 @@ const MessageTamplate: FC<Props> = ({ message, didISend, user }) => {
               paddingLeft: didISend ? "35px" : "10px",
               margin: "10px 0",
               marginBottom: "0px",
-              backgroundColor: didISend ? "lightgreen" : "lightblue",
+              backgroundColor: didISend
+                ? "rgba(25, 118, 210, 0.8)"
+                : "rgba(220, 220, 220, 0.8)", // Adjust the alpha for opacity
               borderRadius: "10px",
               position: "relative",
             }}
           >
+            {message.Image && (
+              <Box sx={{ width: "100%", height: "auto", position: "relative" }}>
+                <img
+                  src={message.Image}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "200px", // Set a max-height for images
+                    display: "block", // This removes bottom space under the image
+                    marginBottom: "10px", // Add space between the image and the text
+                  }}
+                  alt="Sent image"
+                  onLoad={onImageLoad}
+                />
+              </Box>
+            )}
             <Typography variant="body1" color="textSecondary" component="p">
               {message.text}
             </Typography>
@@ -83,7 +98,7 @@ const MessageTamplate: FC<Props> = ({ message, didISend, user }) => {
   }
 };
 
-export default MessageTamplate;
+export default MessageTemplate;
 {
   /* <Tooltip title="Arrow pointing right">
   <Box

@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogContentText,
 } from "@mui/material";
-import { auth, signInWithGoogle, LoginWithGoogle } from "../firebase";
+import { auth, signInWithGoogle, LoginWithGoogle } from "../../firebase";
 import firebase from "firebase/compat/app";
 
 import "firebase/compat/auth";

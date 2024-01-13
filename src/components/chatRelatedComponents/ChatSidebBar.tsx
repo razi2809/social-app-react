@@ -1,9 +1,10 @@
 import React, { FC, memo, useCallback, useEffect, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { db } from "../firebase";
-import { Box, Typography } from "@mui/material";
+import { db } from "../../firebase";
+import { Box, Drawer, Typography } from "@mui/material";
 import {
   DocumentReference,
+  Timestamp,
   DocumentData,
   doc,
   getDoc,
@@ -13,23 +14,24 @@ import {
 } from "firebase/firestore";
 import firebase from "firebase/compat/app";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { chatActions } from "../REDUX/chatSlice";
-import { useAppDispatch, useAppSelector } from "../REDUX/bigpie";
-import LoaderComponent from "../layout/LoaderComponent";
-import DisplayUser from "./DisplayUser";
-import DisplayUserChats from "./DisplayUserChats";
-import { log } from "console";
+import { chatActions } from "../../REDUX/chatSlice";
+import { useAppDispatch, useAppSelector } from "../../REDUX/bigpie";
+import LoaderComponent from "../../layout/LoaderComponent";
+import DisplayUser from "../userRelatedComponents/DisplayUser";
+import DisplayUserChats from "../userRelatedComponents/DisplayUserChats";
 import ChatHeader from "./ChatHeader";
 
 interface ChatUser {
   displayName: string | null;
   photourl: string | null;
   uid: string;
+  timestamp: Timestamp;
 }
 interface User {
   avatar: string;
   displayName: string;
   uid: string;
+  timestamp: Timestamp;
 }
 
 type ChatInfo = {
@@ -41,6 +43,7 @@ type ChatInfo = {
     photourl: string;
     uid: string;
     displayName: string;
+    timestamp: Timestamp;
   };
 };
 type ChatData = {
@@ -67,6 +70,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
           avatar: doc.data().avatar,
           displayName: doc.data().displayName,
           uid: doc.data().uid,
+          timestamp: doc.data().Timestamp,
         }))
       );
     });
@@ -151,6 +155,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
             displayName: userBuddy.displayName,
             photourl: userBuddy.avatar,
             uid: userBuddy.uid,
+            timestamp: userBuddy.timestamp,
           })
         );
       } catch (err) {
@@ -193,13 +198,12 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
           <Box
             sx={{
               width: "100%",
-
               borderBottom: "1px solid rgba(0,0,0,0.1)",
             }}
           >
             <Typography
               variant="h6"
-              color="textSecondary"
+              color="text.hover"
               component="p"
               textAlign={"center"}
             >
@@ -235,7 +239,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
                 >
                   <Typography
                     variant="h6"
-                    color="textSecondary"
+                    color="text.hover"
                     component="p"
                     textAlign={"center"}
                   >

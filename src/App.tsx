@@ -9,8 +9,6 @@ import React from "react"; // Add import statement for React
 import LayoutComponents from "./layout/layoutComponents";
 
 const App = () => {
-  console.log("App");
-
   return (
     <div className="app">
       <Router />

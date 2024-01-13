@@ -12,10 +12,10 @@ import CommentIcon from "@mui/icons-material/Comment";
 import { formatDistanceToNow } from "date-fns";
 import React, { FC, Fragment, useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import EditIcon from "@mui/icons-material/Edit";
 import firebase from "firebase/compat/app";
-import { useAppSelector } from "../REDUX/bigpie";
+import { useAppSelector } from "../../REDUX/bigpie";
 interface Prop {
   comment: {
     comment: string;
