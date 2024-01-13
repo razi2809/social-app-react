@@ -54,6 +54,9 @@ code {
   transition: transform 500ms ease-in-out;
   transform-origin: top;
 }
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
 .ReactVirtualized__List::-webkit-scrollbar {
   width: 0;
 }

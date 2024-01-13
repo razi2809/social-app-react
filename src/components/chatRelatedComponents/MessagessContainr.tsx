@@ -1,6 +1,4 @@
-import { Box, Grid } from "@mui/material";
-import React, { FC, Fragment, useEffect, useRef, useState } from "react";
-import MessageTamplate from "./messageTamplate";
+import React, { FC, useEffect, useState } from "react";
 import firebase from "firebase/compat/app";
 import { useAppSelector } from "../../REDUX/bigpie";
 import {
@@ -11,9 +9,6 @@ import {
   ListRowProps,
 } from "react-virtualized";
 
-import { DocumentReference, doc, onSnapshot } from "firebase/firestore";
-import { useSearchParams } from "react-router-dom";
-import { db } from "../../firebase";
 import MessageTemplate from "./messageTamplate";
 
 interface Message {
@@ -30,7 +25,11 @@ type Props = {
 const MessagessContainr: FC<Props> = ({ messages }) => {
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
-  const [shouldScrollToLast, setShouldScrollToLast] = useState(true);
+  const [enableSmoothScroll, setEnableSmoothScroll] = useState(false);
+
+  const [scrollToIndex, setScrollToIndex] = useState<number>(
+    messages.length - 1
+  );
 
   const cache = new CellMeasurerCache({
     defaultHeight: 70, // Provide a reasonable default height for messages without images
@@ -69,22 +68,27 @@ const MessagessContainr: FC<Props> = ({ messages }) => {
       </CellMeasurer>
     );
   };
+
   useEffect(() => {
-    // After the initial render, allow free scrolling
-    setShouldScrollToLast(false);
-  }, []);
+    if (messages.length > 0) {
+      // Enable smooth scrolling after initial load
+      setEnableSmoothScroll(true);
+      setScrollToIndex(messages.length - 1);
+    }
+  }, [messages]);
+  const listClassName = enableSmoothScroll ? "smooth-scroll" : "";
 
   return (
     <AutoSizer>
       {({ width, height }) => (
         <List
+          className={listClassName}
           width={width}
           height={height}
           rowCount={messages.length}
           rowHeight={cache.rowHeight}
           rowRenderer={rowRenderer}
-          scrollToIndex={shouldScrollToLast ? messages.length - 1 : undefined}
-          // overscanRowCount={5}
+          scrollToIndex={scrollToIndex}
         />
       )}
     </AutoSizer>
