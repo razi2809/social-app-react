@@ -1,18 +1,10 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import Header from "./header/Header";
 import LoaderComponent from "./LoaderComponent";
-import { useLocation } from "react-router-dom";
 import useLogin from "../hooks/useLogin";
 import useUserTheme from "../hooks/useTheme";
 import { PaletteMode, ThemeProvider, createTheme } from "@mui/material";
-import {
-  amber,
-  blue,
-  deepOrange,
-  grey,
-  lime,
-  purple,
-} from "@mui/material/colors";
+import { blue, deepOrange, grey } from "@mui/material/colors";
 type Props = {
   children: React.ReactNode;
 };
@@ -39,7 +31,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
             iSendIt: "#cfd6f7",
           },
 
-          divider: amber[200],
+          divider: "#add8e6",
           text: {
             primary: grey[900],
             secondary: grey[800],
@@ -86,7 +78,7 @@ const LayoutComponents: FC<Props> = ({ children }) => {
   if (isDone && theme.done) {
     return (
       <ThemeProvider
-        theme={theme.theme == "light" ? lightModeTheme : darkModeTheme}
+        theme={theme.theme === "light" ? lightModeTheme : darkModeTheme}
       >
         <Header done={isDone} />
         <div>{children}</div>

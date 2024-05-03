@@ -15,6 +15,7 @@ import firebase from "firebase/compat/app";
 import LoaderComponent from "../../layout/LoaderComponent";
 import ChatInput from "./ChatInput";
 import ChatBuddyHeader from "./chatBuddyHeader";
+import MessagessContainrtest from "./MessagessContainrtest";
 
 interface Message {
   date: firebase.firestore.Timestamp;
@@ -24,7 +25,7 @@ interface Message {
   Image?: string;
 }
 
-const ChatTemplat = () => {
+const ChatTemplate = () => {
   const MemoChatInput = memo(ChatInput);
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
@@ -103,10 +104,14 @@ const ChatTemplat = () => {
         <Box
           sx={{
             flexGrow: 1,
+            overflowY: "auto",
+            overflowX: "hidden",
+            maxHeight: "75vh",
           }}
         >
           {" "}
-          {messages.length > 0 && <MessagessContainr messages={messages} />}
+          {/* {messages.length > 0 && <MessagessContainr messages={messages} />} */}
+          {messages.length > 0 && <MessagessContainrtest messages={messages} />}
         </Box>
         <Box sx={{ position: "sticky", bottom: 0, zIndex: 10 }}>
           <MemoChatInput />
@@ -118,4 +123,4 @@ const ChatTemplat = () => {
   }
 };
 
-export default ChatTemplat;
+export default ChatTemplate;

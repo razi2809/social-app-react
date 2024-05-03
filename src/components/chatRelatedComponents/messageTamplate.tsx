@@ -1,5 +1,5 @@
-import { Avatar, Box, Typography } from "@mui/material";
-import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
+import { Avatar, Box, Tooltip, Typography } from "@mui/material";
+import React, { FC } from "react";
 import { useAppSelector } from "../../REDUX/bigpie";
 import firebase from "firebase/compat/app";
 
@@ -42,10 +42,14 @@ const MessageTemplate: FC<Props> = ({
         // ref={!imgLoading ? (index === "last" ? lastMessageRef : null) : null}
       >
         {!didISend && (
-          <Avatar
-            sx={{ marginRight: "10px" }}
-            src={!didISend ? chatBuddy.user?.photourl || undefined : undefined}
-          />
+          <Tooltip title={chatBuddy.user.displayName}>
+            <Avatar
+              sx={{ marginRight: "10px" }}
+              src={
+                !didISend ? chatBuddy.user?.photourl || undefined : undefined
+              }
+            />
+          </Tooltip>
         )}
         <Box>
           <Box
@@ -68,11 +72,11 @@ const MessageTemplate: FC<Props> = ({
                   src={message.Image}
                   style={{
                     maxWidth: "100%",
-                    maxHeight: "200px", // Set a max-height for images
+                    height: "100px", // Set a max-height for images
                     display: "block", // This removes bottom space under the image
                     marginBottom: "10px", // Add space between the image and the text
                   }}
-                  alt="Sent image"
+                  alt=""
                   onLoad={onImageLoad}
                 />
               </Box>
@@ -86,10 +90,12 @@ const MessageTemplate: FC<Props> = ({
           </Typography>
         </Box>
         {didISend && (
-          <Avatar
-            sx={{ marginLeft: "10px" }}
-            src={didISend ? user?.photoURL || undefined : undefined}
-          />
+          <Tooltip title={user?.displayName}>
+            <Avatar
+              sx={{ marginLeft: "10px" }}
+              src={didISend ? user?.photoURL || undefined : undefined}
+            />
+          </Tooltip>
         )}
       </Box>
     );
@@ -99,44 +105,3 @@ const MessageTemplate: FC<Props> = ({
 };
 
 export default MessageTemplate;
-{
-  /* <Tooltip title="Arrow pointing right">
-  <Box
-    sx={{
-      position: "absolute",
-      bottom: 100,
-      right: 0,
-      transform: "rotate(-45deg)",
-      backgroundColor: didISend ? "lightgreen" : "lightblue",
-      height: "20px",
-      width: "20px",
-    }}
-  >
-    {/* <ArrowRightAlt /> 
-  </Box>
-</Tooltip> */
-}
-
-/*         <CardHeader
-          avatar={
-            <Avatar
-              src={
-                didISend
-                  ? user.user?.photoURL || undefined
-                  : chatBuddy.user?.photourl || undefined
-              }
-            />
-          }
-          title={
-            didISend
-              ? user.user?.displayName || undefined
-              : chatBuddy.user?.displayName || undefined
-          }
-          sx={{ p: 1 }}
-        />
-        <CardContent>
-          <Typography variant="h6" color="textSecondary" component="p">
-            {didISend
-              ? user.user?.displayName || undefined
-              : chatBuddy.user?.displayName || undefined}
-          </Typography> */

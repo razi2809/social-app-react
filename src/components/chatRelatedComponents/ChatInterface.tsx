@@ -2,7 +2,7 @@ import { Box, Grid } from "@mui/material";
 import React, { Fragment, memo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatSideBar from "./ChatSidebBar";
-import ChatTemplat from "./chatTemplat";
+import ChatTemplat from "./chatTemplate";
 import ChatInput from "./ChatInput";
 
 const ChatInterface = () => {

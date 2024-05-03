@@ -24,22 +24,32 @@ type Props = {
   messages: Message[];
 };
 
-const MessagessContainr: FC<Props> = ({ messages }) => {
+const MessagessContainrtest: FC<Props> = ({ messages }) => {
   const chatBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
-  const [enableSmoothScroll, setEnableSmoothScroll] = useState(false);
-  const listRef = useRef<List | null>(null);
-  const [scrollToIndex, setScrollToIndex] = useState<number>(
+  const [scrollToIndex, setScrollToIndex] = useState<null | number>(
     messages.length - 1
   );
 
-  const cache = new CellMeasurerCache({
-    defaultHeight: 70, // Provide a reasonable default height for messages without images
-    fixedWidth: true,
-  });
+  useEffect(() => {
+    if (messages.length > 0) {
+      setScrollToIndex(messages.length - 1);
+      const timer = setTimeout(() => {
+        setScrollToIndex(null);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length]);
+  console.log(scrollToIndex);
+
+  const cache = useRef(
+    new CellMeasurerCache({
+      defaultHeight: 100,
+      fixedWidth: true,
+    })
+  ).current;
   const rowRenderer = ({ index, key, parent, style }: ListRowProps) => {
     const message = messages[index];
-
     return (
       <CellMeasurer
         cache={cache}
@@ -70,35 +80,24 @@ const MessagessContainr: FC<Props> = ({ messages }) => {
       </CellMeasurer>
     );
   };
-
-  /*   useEffect(() => {
-    if (messages.length > 0) {
-      // Enable smooth scrolling after initial load
-      setEnableSmoothScroll(true);
-      setScrollToIndex(messages.length - 1);
-    }
-  }, [messages]); */
-  /*   useEffect(() => {
-    const handleScroll = debounce(() => {
-      if (!listRef.current) return;
-
-      // Example: Calculate the desired scroll position. This is a placeholder.
-      // You might need a more sophisticated way to calculate this, depending on your layout.
-      const scrollPosition = messages.length * 70; // Assuming each message is roughly 70px high
-
-      // Use requestAnimationFrame for smoother animation
-      requestAnimationFrame(() => {
-        if (!listRef.current) return;
-        listRef.current.scrollToPosition(scrollPosition);
-      });
-    }, 100);
-
-    handleScroll();
-  }, [messages]); */
-  const listClassName = enableSmoothScroll ? "smooth-scroll" : "";
-
   return (
-    <div>
+    <AutoSizer>
+      {({ width, height }) => (
+        <List
+          width={width}
+          height={height}
+          rowCount={messages.length}
+          rowHeight={cache.rowHeight}
+          rowRenderer={rowRenderer}
+          scrollToIndex={scrollToIndex ? scrollToIndex : undefined}
+        />
+      )}
+    </AutoSizer>
+  );
+};
+
+export default MessagessContainrtest;
+/*     <div>
       {messages.map((message) => (
         <MessageTemplate
           key={message.id}
@@ -110,23 +109,4 @@ const MessagessContainr: FC<Props> = ({ messages }) => {
           }}
         />
       ))}
-    </div>
-  );
-};
-
-export default MessagessContainr;
-
-/*     <AutoSizer>
-        {({ width, height }) => (
-          <List
-            ref={listRef}
-            className={listClassName}
-            width={width}
-            height={height}
-            rowCount={messages.length}
-            rowHeight={cache.rowHeight}
-            rowRenderer={rowRenderer}
-            scrollToIndex={scrollToIndex}
-          />
-        )}
-      </AutoSizer> */
+    </div> */
