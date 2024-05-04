@@ -27,7 +27,7 @@ interface Props {
   id: string;
   chatIsOpen: boolean;
 }
-const DisplayUserChats: React.FC<Props> = ({
+const DisplayUserChatsHomePage: React.FC<Props> = ({
   chats,
   handleOpenChat,
   id,
@@ -51,11 +51,8 @@ const DisplayUserChats: React.FC<Props> = ({
       }}
       sx={{
         cursor: "pointer",
-        height: "100%",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
         padding: "12px",
         borderRadius: "8px",
-        mb: 1,
       }}
     >
       <Card
@@ -65,7 +62,7 @@ const DisplayUserChats: React.FC<Props> = ({
           minHeight: 60,
           maxHeight: 100,
           alignItems: "center",
-          padding: "10px",
+          // padding: "10px",
           backgroundColor: chatIsOpen ? "userChat.active" : "userChat.noActive",
           ":hover": {
             backgroundColor: chatIsOpen
@@ -92,23 +89,10 @@ const DisplayUserChats: React.FC<Props> = ({
           <Typography variant="h5">
             {chats.userInfo.displayName.slice(0, 20)}
           </Typography>
-          {chats.lastMessage?.text ? (
-            <Typography variant="h5">
-              {chats.lastMessage?.text.slice(0, 50)}
-            </Typography>
-          ) : (
-            <Typography variant="h5">(photo)</Typography>
-          )}
         </CardContent>
-        <Typography
-          sx={{ marginLeft: "auto", alignSelf: "flex-start" }}
-          variant="h6"
-        >
-          {time}
-        </Typography>
       </Card>
     </Box>
   );
 };
 
-export default DisplayUserChats;
+export default DisplayUserChatsHomePage;

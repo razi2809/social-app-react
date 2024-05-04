@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import ChatSideBar from "./ChatSidebBar";
 import ChatTemplat from "./chatTemplate";
 import ChatInput from "./ChatInput";
+import ChatSideBarDemo from "./ChatSidebBar copy";
 
 const ChatInterface = () => {
   const [searchParams] = useSearchParams();
@@ -14,21 +15,21 @@ const ChatInterface = () => {
     <Grid container sx={{ height: "100vh" }}>
       <Grid
         item
-        sm={4}
-        xs={12}
-        md={3}
+        sm={6}
+        md={4}
         sx={{
           bgcolor: "divider",
+          display: { xs: "none", md: "flex", sm: "flex" },
         }}
       >
         {" "}
-        <ChatSideBar chatId={chatId} />
+        <ChatSideBarDemo chatId={chatId} />
       </Grid>
       <Grid
         item
-        sm={8}
+        sm={6}
         xs={12}
-        md={9}
+        md={8}
         sx={{
           height: "100%",
           display: "flex",

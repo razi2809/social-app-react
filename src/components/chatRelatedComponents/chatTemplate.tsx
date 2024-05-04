@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, {
   memo,
   useEffect,
@@ -6,6 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
+
 import { DocumentReference, doc, onSnapshot } from "firebase/firestore";
 import { useSearchParams } from "react-router-dom";
 import { db } from "../../firebase";
@@ -16,6 +18,11 @@ import LoaderComponent from "../../layout/LoaderComponent";
 import ChatInput from "./ChatInput";
 import ChatBuddyHeader from "./chatBuddyHeader";
 import MessagessContainrtest from "./MessagessContainrtest";
+import useGetChats from "../../hooks/useGetChats";
+import DisplayUser from "../userRelatedComponents/DisplayUser";
+import DisplayUserChats from "../userRelatedComponents/DisplayUserChats";
+import DisplayUserChatsSmallScreen from "../userRelatedComponents/DisplayUserChatsSmallScreen";
+import DisplayUserSmallScreen from "../userRelatedComponents/DisplayUserSmallScreen";
 
 interface Message {
   date: firebase.firestore.Timestamp;
@@ -33,28 +40,18 @@ const ChatTemplate = () => {
   const chatId: string = searchParams.get("uid")!;
   const [messages, setMessages] = useState<Message[]>([]);
   const [done, setDone] = useState(false);
-  const [parentWidth, setParentWidth] = useState(0);
   const parentRef = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const updateWidth = () => {
-      if (parentRef.current) {
-        const scrollbarWidth =
-          window.innerWidth - document.documentElement.clientWidth;
-        setParentWidth(parentRef.current.offsetWidth - scrollbarWidth);
-      }
-    };
-
-    updateWidth();
-
-    const handleResize = () => {
-      updateWidth();
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [done]);
+  const {
+    users,
+    chats,
+    done: doneGetstheChats,
+    openChat,
+    handleClick,
+    isHeChattingWithAll,
+  } = useGetChats();
+  const [isHeWantNewChat, setIsHeWantNewChat] = useState(false);
+  const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
+  const MemoDisplayUsers = memo(DisplayUserSmallScreen);
 
   useEffect(() => {
     const getChat = async () => {
@@ -88,17 +85,138 @@ const ChatTemplate = () => {
       >
         <Box
           sx={{
-            position: "fixed",
             top: 0,
             zIndex: 1000,
-            width: `${parentWidth}px`,
           }}
         >
           <ChatBuddyHeader
-            isHeWantNewChat={false}
-            setIsHeWantNewChat={setDone}
-            isThereUserWithoutChat={true}
+            isHeWantNewChat={isHeWantNewChat}
+            setIsHeWantNewChat={setIsHeWantNewChat}
+            isThereUserWithoutChat={isHeChattingWithAll}
           />
+        </Box>
+        <Box
+          sx={{
+            width: "100%",
+            borderBottom: "1px solid rgba(0,0,0,0.1)",
+            display: { xs: "block", md: "none", sm: "none" },
+          }}
+        >
+          <Typography
+            variant="h6"
+            color="text.hover"
+            component="p"
+            textAlign={"center"}
+          >
+            Existing Chats
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            borderBottom: "1px solid rgba(0,0,0,0.1)",
+            display: { xs: "flex", md: "none", sm: "none" },
+          }}
+        >
+          {
+            <TransitionGroup
+              style={{
+                display: "flex",
+                flexGrow: 1,
+                justifyContent: "space-evenly",
+                alignContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              {chats &&
+                chats.map((chat) => {
+                  const key = Object.keys(chat)[0];
+
+                  return (
+                    <CSSTransition key={key} timeout={500} classNames="item">
+                      <DisplayUserChatsSmallScreen
+                        chats={chat[key]}
+                        chatIsOpen={key === chatId}
+                        key={key}
+                        id={key}
+                        handleOpenChat={() => openChat(key, chat[key].userInfo)}
+                      />
+                    </CSSTransition>
+                  );
+                })}
+            </TransitionGroup>
+          }
+          <Box />{" "}
+        </Box>
+        <Box
+          sx={{
+            width: "100%",
+            borderBottom: "1px solid rgba(0,0,0,0.1)",
+            display: { xs: "block", md: "none", sm: "none" },
+          }}
+        >
+          <TransitionGroup>
+            {!isHeChattingWithAll && isHeWantNewChat && (
+              <CSSTransition timeout={500} classNames="item">
+                <Box
+                  sx={{
+                    width: "100%",
+                    borderBottom: "1px solid rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    color="text.hover"
+                    component="p"
+                    textAlign={"center"}
+                  >
+                    User's whom you don't have chat with
+                  </Typography>
+                </Box>
+              </CSSTransition>
+            )}{" "}
+          </TransitionGroup>
+          <Box
+            sx={{
+              borderBottom: "1px solid rgba(0,0,0,0.1)",
+              display: { xs: "flex", md: "none", sm: "none" },
+            }}
+          >
+            <TransitionGroup
+              style={{
+                display: "flex",
+                flexGrow: 1,
+                justifyContent: "space-evenly",
+                flexWrap: "wrap",
+              }}
+            >
+              {isHeWantNewChat &&
+                users.map((userExist) => {
+                  const doesHeHaveChat = chats.some((chat) =>
+                    Object.keys(chat)[0].includes(userExist.uid)
+                  );
+                  const alreadyChattingWithHim =
+                    userExist.uid === userBuddy.user?.uid || "";
+                  if (!alreadyChattingWithHim) {
+                    if (!doesHeHaveChat) {
+                      return (
+                        <CSSTransition
+                          key={userExist.uid}
+                          timeout={500}
+                          classNames="item"
+                        >
+                          <MemoDisplayUsers
+                            user={userExist}
+                            display={userExist.uid !== user.user?.uid}
+                            handleOpenChat={() => handleClick(userExist)}
+                          />
+                        </CSSTransition>
+                      );
+                    }
+                  }
+                  return null;
+                })}
+            </TransitionGroup>
+          </Box>
         </Box>
 
         <Box

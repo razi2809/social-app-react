@@ -20,6 +20,7 @@ import LoaderComponent from "../../layout/LoaderComponent";
 import DisplayUser from "../userRelatedComponents/DisplayUser";
 import DisplayUserChats from "../userRelatedComponents/DisplayUserChats";
 import ChatHeader from "./ChatHeader";
+import useGetChats from "../../hooks/useGetChats";
 
 interface ChatUser {
   displayName: string | null;
@@ -52,143 +53,13 @@ type ChatData = {
 interface Props {
   chatId: string;
 }
-const ChatSideBar: FC<Props> = ({ chatId }) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [chats, setChats] = useState<ChatData[]>([]);
-  const [done, setDone] = useState(false);
+const ChatSideBarDemo: FC<Props> = ({ chatId }) => {
+  const { users, chats, done, openChat, handleClick, isHeChattingWithAll } =
+    useGetChats();
   const [isHeWantNewChat, setIsHeWantNewChat] = useState(false);
-
-  const navigate = useNavigate();
-  const user = useAppSelector((bigPie) => bigPie.authReducer);
   const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
-  const dispatch = useAppDispatch();
+  const user = useAppSelector((bigPie) => bigPie.authReducer);
   const MemoDisplayUsers = memo(DisplayUser);
-  useEffect(() => {
-    db.collection(`users`).onSnapshot((snapshot) => {
-      setUsers(
-        snapshot.docs.map((doc) => ({
-          avatar: doc.data().avatar,
-          displayName: doc.data().displayName,
-          uid: doc.data().uid,
-          timestamp: doc.data().Timestamp,
-        }))
-      );
-    });
-    const getChats = async () => {
-      const userUid = user.user?.uid;
-      if (userUid) {
-        const unsub = onSnapshot(
-          doc(db, "userchats", userUid) as DocumentReference<DocumentData>,
-          (doc) => {
-            const chatData = doc.data() as ChatData;
-            if (!chatData) {
-              setIsHeWantNewChat(true);
-              return;
-            }
-            let sortedChats = Object.entries(chatData)
-              .filter(([key, chat]) => chat.date && chat.date.seconds) // Ensure date exists and is not null
-              .sort((a, b) => {
-                if (a[1].date && b[1].date) {
-                  const aDate = a[1]?.date?.toDate();
-                  const bDate = b[1]?.date?.toDate();
-                  return bDate.getTime() - aDate.getTime();
-                }
-                return 0;
-              });
-
-            setChats(sortedChats.map(([key, value]) => ({ [key]: value })));
-            setDone(true);
-          }
-        );
-        return () => {
-          unsub();
-        };
-      }
-    };
-
-    if (user.isLoggedIn) {
-      user.user?.uid && getChats();
-    }
-  }, [user.isLoggedIn]);
-  const handleClick = useCallback(async (userBuddy: User) => {
-    const userUid = user.user?.uid;
-    if (userUid && userBuddy.uid === userUid) return;
-    //check whether the group is already created or not, if not create
-    if (user.user && userUid) {
-      const combinedUsersId =
-        userUid > userBuddy.uid
-          ? userUid + userBuddy.uid
-          : userBuddy.uid + user.user.uid;
-      navigate(`/chat/chatuid?uid=${combinedUsersId}`);
-      try {
-        const res = await getDoc(doc(db, "chats", combinedUsersId));
-
-        if (!res.exists()) {
-          //create user chat group
-          await setDoc(doc(db, `chats`, combinedUsersId), {
-            messages: [],
-          });
-
-          await updateDoc(doc(db, `userchats`, user.user.uid), {
-            [combinedUsersId + ".userInfo"]: {
-              uid: userBuddy.uid,
-              displayName: userBuddy.displayName,
-              photourl: userBuddy.avatar,
-            },
-            [combinedUsersId + ".lastMessage"]: {
-              text: "",
-            },
-            [combinedUsersId + ".date"]:
-              firebase.firestore.FieldValue.serverTimestamp(),
-          });
-          await updateDoc(doc(db, `userchats`, userBuddy.uid), {
-            [combinedUsersId + ".userInfo"]: {
-              uid: user.user.uid,
-              displayName: user.user.displayName,
-              photourl: user.user.photoURL,
-            },
-            [combinedUsersId + ".date"]:
-              firebase.firestore.FieldValue.serverTimestamp(),
-            [combinedUsersId + ".lastMessage"]: {
-              text: "",
-            },
-          });
-        }
-        dispatch(
-          chatActions.selectedUser({
-            displayName: userBuddy.displayName,
-            photourl: userBuddy.avatar,
-            uid: userBuddy.uid,
-            timestamp: userBuddy.timestamp,
-          })
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  }, []);
-  let arrChats = [];
-  let doesHeHaveChat;
-  let alreadyChattingWithHim;
-  for (let userInArr of users) {
-    if (userInArr.uid != user.user?.uid) {
-      doesHeHaveChat = chats.some((chat) =>
-        Object.keys(chat)[0].includes(userInArr.uid)
-      );
-      arrChats.push(doesHeHaveChat);
-    }
-    if (!doesHeHaveChat) {
-      alreadyChattingWithHim = userInArr.uid === userBuddy.user?.uid;
-      arrChats.push(alreadyChattingWithHim);
-    }
-  }
-
-  const isHeChattingWithAll = arrChats.every(Boolean);
-
-  const openChat = useCallback((chatId: string, userBuddy: ChatUser) => {
-    dispatch(chatActions.selectedUser(userBuddy));
-    navigate(`/chat/chatuid?uid=${chatId}`);
-  }, []);
 
   if (done) {
     return (
@@ -290,4 +161,4 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
   }
 };
 
-export default ChatSideBar;
+export default ChatSideBarDemo;

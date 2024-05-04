@@ -40,7 +40,6 @@ const MessagessContainrtest: FC<Props> = ({ messages }) => {
       return () => clearTimeout(timer);
     }
   }, [messages.length]);
-  console.log(scrollToIndex);
 
   const cache = useRef(
     new CellMeasurerCache({

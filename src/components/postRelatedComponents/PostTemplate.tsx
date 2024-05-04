@@ -104,8 +104,9 @@ const PostTemplate: FC<Props> = ({ post, postId }) => {
     });
     setEditPost(false);
   };
+
   return (
-    <Card sx={{ borderRadius: 2 }}>
+    <Card sx={{ borderRadius: 2, bgcolor: "divider", width: "100%" }}>
       <Grid container>
         <Grid item container md={12}>
           <CardHeader
@@ -125,7 +126,7 @@ const PostTemplate: FC<Props> = ({ post, postId }) => {
         <Grid item md={12}>
           <CardContent>
             <Typography variant="h6" color="textSecondary" component="p">
-              {who}
+              {post.username}
             </Typography>
             {!editPost ? (
               <Typography variant="body2" color="initial">

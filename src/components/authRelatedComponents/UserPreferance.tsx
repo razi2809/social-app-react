@@ -36,7 +36,8 @@ const UserPreferance = () => {
     }
   };
   const handleDeleteButtonClick = () => {
-    if (auth.currentUser) {
+    setImg(null);
+    /*     if (auth.currentUser) {
       updateProfile(auth.currentUser, {
         photoURL: defaultAvatarUrl,
       });
@@ -44,38 +45,9 @@ const UserPreferance = () => {
       db.collection("users")
         .doc(auth.currentUser?.uid)
         .update({ avatar: defaultAvatarUrl });
-    }
+    } */
   };
-  /*   const handleSetPicButtonClick = () => {
-    if (img) {
-      const upload = storage.ref(`images/${img.name}`).put(img);
-      upload.on(
-        "state_changed",
-        (snapshot) => {},
-        (error) => {
-          console.log(error);
-        },
-        () => {
-          setImg(null);
-          storage
-            .ref("images")
-            .child(img.name)
-            .getDownloadURL()
-            .then(async (url) => {
-              if (auth.currentUser) {
-                await updateProfile(auth.currentUser, {
-                  photoURL: url,
-                });
-                db.collection("users")
-                  .doc(auth.currentUser?.uid)
-                  .update({ avatar: url });
-              }
-            });
-        }
-      );
-    }
-  };
-  */
+
   return (
     <Box
       sx={{
@@ -110,7 +82,7 @@ const UserPreferance = () => {
               <Avatar
                 sx={{ width: 70, height: 70, cursor: "pointer", m: 1 }}
                 alt="user pic"
-                src={user.user?.photoURL ?? ""}
+                src={img ? URL.createObjectURL(img) : user.user?.photoURL ?? ""}
               />
             </label>{" "}
             <Box sx={{ display: "flex", flexDirection: "column" }}>

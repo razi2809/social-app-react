@@ -73,7 +73,6 @@ const lightModeTheme = createTheme(getDesignTokens("light"));
 const LayoutComponents: FC<Props> = ({ children }) => {
   const isDone = useLogin();
   const theme = useUserTheme(isDone);
-  console.log(theme.done, theme.theme);
 
   if (isDone && theme.done) {
     return (

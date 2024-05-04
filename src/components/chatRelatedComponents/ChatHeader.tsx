@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, useEffect, useRef, useState } from "react";
+import React, { Dispatch, FC, useRef } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -9,13 +9,8 @@ import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import { useAppSelector } from "../../REDUX/bigpie";
 import CommentIcon from "@mui/icons-material/Comment";
-import { Drawer, Grid, MenuItem, Popper } from "@mui/material";
-import ThemeSwitcher from "../layoutRelatedComponents/ThemeSwitcher";
-import { CSSTransition } from "react-transition-group";
+import { Grid } from "@mui/material";
 import UserPreferance from "../authRelatedComponents/UserPreferance";
-
-const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 interface Props {
   isHeWantNewChat: boolean;
@@ -31,8 +26,6 @@ const ChatHeader: FC<Props> = ({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
 
-  // const [siblingHeight, setSiblingHeight] = useState<number>(0);
-  const siblingRef = useRef<HTMLDivElement>(null);
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -44,51 +37,33 @@ const ChatHeader: FC<Props> = ({
     }
   };
 
-  /*   useEffect(() => {
-    const updateHeight = () => {
-      if (siblingRef.current) {
-        setSiblingHeight(siblingRef.current.clientHeight);
-      }
-    };
-
-    updateHeight(); // Update height initially
-
-    window.addEventListener("resize", updateHeight); // Listen for resize events
-
-    return () => {
-      window.removeEventListener("resize", updateHeight); // Clean up the event listener
-    };
-  }, [siblingRef.current]); */
-
   return (
-    <AppBar position="static">
-      <Grid container sx={{ position: "sticky" }}>
-        <Grid
-          item
-          xs={12}
-          md={12}
-          lg={12}
-          xl={12}
-          sx={{ position: "relative" }}
-          ref={siblingRef as React.RefObject<HTMLDivElement>}
-        >
+    <AppBar position="static" sx={{ width: "100%", bgcolor: "divider" }}>
+      <Grid container sx={{ width: "100%" }}>
+        <Grid item xs={12} md={12} lg={12} xl={12}>
           {" "}
           <Container
-            maxWidth="xl"
             sx={{
               display: "flex",
-              alignItems: "center",
+              width: "100%",
               justifyContent: "space-between",
-              bgcolor: "divider",
+              alignItems: "center",
+              p: 1,
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
               <Typography
                 variant="h6"
                 noWrap
                 sx={{
                   mr: 2,
-                  display: { xs: "none", md: "flex" },
+                  display: { xs: "flex", md: "flex", sm: "flex" },
                   fontFamily: "monospace",
                   fontWeight: 700,
                   letterSpacing: ".3rem",
@@ -99,7 +74,7 @@ const ChatHeader: FC<Props> = ({
                 Chats
               </Typography>{" "}
             </Box>
-            <Box sx={{ flexGrow: 0 }}>
+            <Box sx={{ display: "flex", alignContent: "center" }}>
               {" "}
               {!isHeWantNewChat && (
                 <Tooltip title="new chat">
@@ -111,47 +86,44 @@ const ChatHeader: FC<Props> = ({
               {isHeWantNewChat && (
                 <Tooltip title="close new chat">
                   <IconButton
-                    sx={{ p: 2 }}
                     onClick={() => setIsHeWantNewChat(!isHeWantNewChat)}
                   >
                     <CommentIcon />
                   </IconButton>
                 </Tooltip>
               )}
+            </Box>{" "}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <Tooltip
                 title={
                   !isMenuOpen ? "Open user Preferance" : "close user Preferance"
                 }
               >
                 <IconButton
-                  sx={{ p: 2 }}
                   onClick={(e) => {
-                    // handleMenu();
                     setAnchorEl(e.currentTarget);
                   }}
                 >
                   <Avatar alt="user profile" src={user.user?.photoURL ?? ""} />
                 </IconButton>
               </Tooltip>
-              <Box sx={{ width: "100%" }}>
-                <Menu
-                  anchorEl={anchorEl}
-                  id="menu-appbar"
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                  sx={{
-                    '.MuiPaper-root': {
-                      backgroundColor: 'divider', // replace with your color
-                    },
-                  }}
-                >
-                  {" "}
-                  <Box>
-                    <UserPreferance />
-                  </Box>
-                </Menu>
+            </Box>
+            <Menu
+              anchorEl={anchorEl}
+              id="menu-appbar"
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              sx={{
+                ".MuiPaper-root": {
+                  backgroundColor: "divider",
+                },
+              }}
+            >
+              {" "}
+              <Box>
+                <UserPreferance />
               </Box>
-            </Box>{" "}
+            </Menu>
           </Container>
         </Grid>{" "}
       </Grid>
@@ -159,27 +131,3 @@ const ChatHeader: FC<Props> = ({
   );
 };
 export default ChatHeader;
-{
-  /* <CSSTransition
-          in={anchorElNav} // control this state to show/hide the Box
-          timeout={500}
-          classNames="bubble"
-          unmountOnExit
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: `${siblingHeight}px`,
-              left: 0,
-              width: "100%",
-              height: `calc(100vh - ${siblingHeight}px)`,
-              zIndex: 50,
-              backgroundColor: "divider", // Add this line
-            }}
-          >
-            <Box sx={{ width: "100%", height: "100%" }}>
-              <UserPreferance />
-            </Box>{" "}
-          </Box>
-        </CSSTransition> */
-}

@@ -31,6 +31,7 @@ const ChatBuddyHeader: FC<Props> = ({
   const [anchorElNav, setAnchorElNav] = React.useState(false);
   const [siblingHeight, setSiblingHeight] = useState<number>(0);
   const siblingRef = useRef<HTMLDivElement>(null);
+  const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
 
   const HeWantNewChat = () => {
     if (!isThereUserWithoutChat) {
@@ -57,17 +58,9 @@ const ChatBuddyHeader: FC<Props> = ({
   }, [siblingRef.current]);
 
   return (
-    <AppBar position="static">
-      <Grid container sx={{ position: "sticky" }}>
-        <Grid
-          item
-          xs={12}
-          md={12}
-          lg={12}
-          xl={12}
-          sx={{ position: "relative" }}
-          ref={siblingRef as React.RefObject<HTMLDivElement>}
-        >
+    <AppBar position="static" ref={siblingRef}>
+      <Grid container>
+        <Grid item xs={12} md={12} lg={12} xl={12}>
           {" "}
           <Container
             maxWidth="xl"
@@ -76,6 +69,7 @@ const ChatBuddyHeader: FC<Props> = ({
               alignItems: "center",
               justifyContent: "space-between",
               bgcolor: "divider",
+              zIndex: 70,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -84,7 +78,7 @@ const ChatBuddyHeader: FC<Props> = ({
                 noWrap
                 sx={{
                   mr: 2,
-                  display: { xs: "none", md: "flex" },
+                  display: { xs: "flex", md: "flex" },
                   fontFamily: "monospace",
                   fontWeight: 700,
                   letterSpacing: ".3rem",
@@ -95,11 +89,22 @@ const ChatBuddyHeader: FC<Props> = ({
                 Chats
               </Typography>{" "}
             </Box>
-            <Box sx={{ flexGrow: 0 }}>
+            <Box
+              sx={{
+                flexGrow: 0,
+                display: "flex",
+              }}
+            >
               {" "}
               {!isHeWantNewChat && (
                 <Tooltip title="new chat">
-                  <IconButton sx={{ p: 2 }} onClick={() => HeWantNewChat()}>
+                  <IconButton
+                    sx={{
+                      p: 2,
+                      display: { xs: "flex", sm: "none", md: "none" },
+                    }}
+                    onClick={() => HeWantNewChat()}
+                  >
                     <CommentIcon />
                   </IconButton>
                 </Tooltip>
@@ -107,7 +112,10 @@ const ChatBuddyHeader: FC<Props> = ({
               {isHeWantNewChat && (
                 <Tooltip title="close new chat">
                   <IconButton
-                    sx={{ p: 2 }}
+                    sx={{
+                      p: 2,
+                      display: { xs: "flex", sm: "none", md: "none" },
+                    }}
                     onClick={() => setIsHeWantNewChat(!isHeWantNewChat)}
                   >
                     <CommentIcon />
@@ -117,8 +125,8 @@ const ChatBuddyHeader: FC<Props> = ({
               <Tooltip
                 title={
                   !anchorElNav
-                    ? "Open user Preferance"
-                    : "close user Preferance"
+                    ? "Open user chat history"
+                    : "close user chat history"
                 }
               >
                 <IconButton
@@ -128,7 +136,10 @@ const ChatBuddyHeader: FC<Props> = ({
                     setAnchorElNav(!anchorElNav);
                   }}
                 >
-                  <Avatar alt="user profile" src={user.user?.photoURL ?? ""} />
+                  <Avatar
+                    alt="user profile"
+                    src={userBuddy.user?.photourl ?? ""}
+                  />
                 </IconButton>
               </Tooltip>
             </Box>{" "}
