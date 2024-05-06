@@ -16,42 +16,48 @@ import { db } from "../../firebase";
 import EditIcon from "@mui/icons-material/Edit";
 import firebase from "firebase/compat/app";
 import { useAppSelector } from "../../REDUX/bigpie";
+import { IComment } from "../../@types/postRelated";
 interface Prop {
-  comment: {
-    comment: string;
-    timestamp: firebase.firestore.Timestamp;
-    userName: string;
-    avatar: string;
-    edited: boolean;
-  };
-  id: string;
+  comment: IComment;
   postId: string;
 }
 
-const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
+const CommentsTamplate: FC<Prop> = ({ comment, postId }) => {
   const [timeAgo, setTimeAgo] = useState("");
   const [editComment, setEditComment] = useState(false);
-  const [editText, setEditText] = useState(comment.comment);
-  const caption = comment.comment;
-  const who = comment.userName;
+  const [editText, setEditText] = useState(comment.comment.comment);
+  const caption = comment.comment.comment;
+  const who = comment.comment.userName;
   const user = useAppSelector((bigPie) => bigPie.authReducer);
   useEffect(() => {
-    if (comment.timestamp == null) return;
-    const when = comment.timestamp.toDate();
+    if (comment.comment.timestamp == null) return;
+    const when = comment.comment.timestamp.toDate();
     let time = formatDistanceToNow(when, { addSuffix: true });
     time = time.replace("about ", "");
     setTimeAgo(time);
-  }, [comment.timestamp]);
-  const handleEdit = () => {
+  }, [comment.comment.timestamp]);
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
     setEditComment(true);
   };
-  const handleupdate = () => {
-    db.collection("posts").doc(postId).collection("comments").doc(id).update({
-      comment: editText,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      edited: true,
-    });
+  const handleupdate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    db.collection("posts")
+      .doc(postId)
+      .collection("comments")
+      .doc(comment.id)
+      .update({
+        comment: editText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        edited: true,
+      });
     setEditComment(false);
+  };
+  const handleGoUserProfile = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    console.log(comment.comment.userCrated);
   };
   return (
     <Grid
@@ -64,8 +70,9 @@ const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
       <Grid item xs={2}>
         <Avatar
           sx={{ scale: "70%" }}
-          src={comment.avatar ?? undefined}
-          alt={comment.avatar || "User"}
+          src={comment.comment.avatar ?? undefined}
+          alt={comment.comment.avatar || "User"}
+          onClick={(e) => handleGoUserProfile(e)}
         />{" "}
       </Grid>
       <Grid item xs={5}>
@@ -86,15 +93,16 @@ const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
         )}
       </Grid>
       <Grid item xs={5}>
-        {user.isLoggedIn && user.user?.displayName == who && (
+        {user.isLoggedIn && user.user?.displayName === who && (
           <Fragment>
             <Tooltip title="delete comment">
               <IconButton
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   db.collection("posts")
                     .doc(postId)
                     .collection("comments")
-                    .doc(id)
+                    .doc(comment.id)
                     .delete();
                 }}
                 aria-label="comment"
@@ -104,16 +112,16 @@ const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
             </Tooltip>
           </Fragment>
         )}
-        {user.isLoggedIn && user.user?.displayName == who && !editComment && (
+        {user.isLoggedIn && user.user?.displayName === who && !editComment && (
           <Tooltip title="edit comment">
-            <IconButton onClick={handleEdit} aria-label="comment">
+            <IconButton onClick={(e) => handleEdit(e)} aria-label="comment">
               <EditIcon />
             </IconButton>
           </Tooltip>
         )}
-        {user.isLoggedIn && user.user?.displayName == who && editComment && (
+        {user.isLoggedIn && user.user?.displayName === who && editComment && (
           <Tooltip title="edit comment">
-            <IconButton onClick={handleupdate} aria-label="comment">
+            <IconButton onClick={(e) => handleupdate(e)} aria-label="comment">
               <CommentIcon />
             </IconButton>
           </Tooltip>
@@ -121,7 +129,7 @@ const CommentsTamplate: FC<Prop> = ({ comment, id, postId }) => {
       </Grid>
 
       <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
-        {comment.edited && (
+        {comment.comment.edited && (
           <Typography
             variant="body2"
             color="initial"

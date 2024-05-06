@@ -15,26 +15,28 @@ import { useAppSelector } from "../REDUX/bigpie";
 import DisplayUser from "../components/userRelatedComponents/DisplayUser";
 import DisplayUserChatsSmallScreen from "../components/userRelatedComponents/DisplayUserChatsSmallScreen";
 import DisplayUserSmallScreen from "../components/userRelatedComponents/DisplayUserSmallScreen";
-
-interface Post {
-  id: string;
-  post: {
-    imgurl: string;
-    avatar: string;
-    username: string;
-    edited: Boolean;
-    timestamp: firebase.firestore.Timestamp;
-    title: string;
-  };
-}
+import { IPost } from "../@types/postRelated";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+const variants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+};
 const PostsPage = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<IPost[]>([]);
   const { users, chats, done, openChat, handleClick, isHeChattingWithAll } =
     useGetChats();
   const [isHeWantNewChat, setIsHeWantNewChat] = useState(false);
   const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
   const user = useAppSelector((bigPie) => bigPie.authReducer);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { pathname } = location;
+  const [searchParams] = useSearchParams();
+  const productId = searchParams.get("post");
+  const [selectedPost, setSelectedPost] = useState<string | null>(productId);
   const MemoDisplayUsers = memo(DisplayUser);
+
   useEffect(() => {
     db.collection(`posts`).onSnapshot((snapshot) => {
       setPosts(
@@ -47,13 +49,26 @@ const PostsPage = () => {
             edited: doc.data().edited,
             timestamp: doc.data().timestamp,
             title: doc.data().title,
+            userCrated: doc.data().userCrated,
+            userLikes: doc.data().userLikes,
           },
         }))
       );
     });
   }, []);
+  /*   const showPost = (postId: string) => {
+    setSelectedPost(postId);
+    navigate(`${pathname}?post=${postId}`);
+  }; */
+  useEffect(() => {
+    if (!selectedPost) {
+      navigate(`${pathname}`);
+      return;
+    }
+    navigate(`${pathname}?post=${selectedPost}`);
+  }, [selectedPost]);
 
-  if (posts) {
+  if (posts && done) {
     return (
       <Box sx={{ bgcolor: "divider" }}>
         <Grid container spacing={4}>
@@ -304,15 +319,63 @@ const PostsPage = () => {
             item
             xs={9}
             sm={7}
-            md={9}
+            md={8}
             spacing={4}
-            sx={{ justifyContent: "space-between" }}
+            // sx={{ justifyContent: "space-around" }}
           >
-            {posts.map(({ id, post }) => (
-              <Grid key={id} container item xs={11} sm={6} md={4}>
-                <PostTemplate post={post} postId={id} />
-              </Grid>
-            ))}
+            {posts.map((post) => {
+              if (selectedPost === post.id) {
+                return (
+                  <Grid key={post.id} container item xs={11} sm={6} md={4}>
+                    {/* <PostTemplate post={post} setSelectedPost={showPost} /> */}
+
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        zIndex: 1000,
+                      }}
+                      onClick={() => setSelectedPost(null)}
+                    >
+                      {/* <ProductTamplateDisplay
+                    canOrder={isOpen}
+                    product={product}
+                    category={selectedProduct.category}
+                    updateOrder={updateOrder}
+                  /> */}
+                    </motion.div>
+                  </Grid>
+                );
+              }
+              return (
+                <Grid key={post.id} container item xs={11} sm={6} md={4}>
+                  <motion.div
+                    style={{ width: "100%", height: "100%" }}
+                    initial="hidden"
+                    animate="visible"
+                    variants={variants}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <PostTemplate
+                      post={post}
+                      setSelectedPost={setSelectedPost}
+                    />
+                  </motion.div>
+                </Grid>
+              );
+            })}
           </Grid>
           {/* <Grid container item xs={1} sm={1} md={1}></Grid> */}
         </Grid>

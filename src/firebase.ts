@@ -5,7 +5,7 @@ import "firebase/compat/storage";
 import "firebase/compat/firestore";
 import firebase from "firebase/compat/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 interface User {
   multiFactor: object;
   _delegate: object;
@@ -45,8 +45,14 @@ const signInWithGoogle = () =>
         avatar: res.user.photoURL,
         uid: res.user.uid,
       });
-      // await setDoc(doc(db, "chats", res.user.uid), {});
-      await setDoc(doc(db, "userchats", res.user.uid), {});
+
+      const doesExist = await getDoc(doc(db, "userchats", res.user.uid));
+
+      if (!doesExist.exists()) {
+        //create user chat
+
+        await setDoc(doc(db, "userchats", res.user.uid), {});
+      }
       return res;
     })
     .catch((error) => {

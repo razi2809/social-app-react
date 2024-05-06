@@ -63,6 +63,8 @@ const NewPost = ({ setIsOpen, isOpen }: Props) => {
                 userName: auth.currentUser?.displayName,
                 avatar: auth.currentUser?.photoURL,
                 edited: false,
+                userCrated: auth.currentUser?.uid,
+                userLikes: [],
               });
             });
         }

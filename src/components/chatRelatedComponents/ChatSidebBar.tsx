@@ -61,6 +61,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
   const navigate = useNavigate();
   const user = useAppSelector((bigPie) => bigPie.authReducer);
   const userBuddy = useAppSelector((bigPie) => bigPie.chatReducer);
+  console.log(user);
   const dispatch = useAppDispatch();
   const MemoDisplayUsers = memo(DisplayUser);
   useEffect(() => {
@@ -81,10 +82,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
           doc(db, "userchats", userUid) as DocumentReference<DocumentData>,
           (doc) => {
             const chatData = doc.data() as ChatData;
-            if (!chatData) {
-              setIsHeWantNewChat(true);
-              return;
-            }
+
             let sortedChats = Object.entries(chatData)
               .filter(([key, chat]) => chat.date && chat.date.seconds) // Ensure date exists and is not null
               .sort((a, b) => {
@@ -95,6 +93,7 @@ const ChatSideBar: FC<Props> = ({ chatId }) => {
                 }
                 return 0;
               });
+            console.log(chatData, sortedChats, userUid);
 
             setChats(sortedChats.map(([key, value]) => ({ [key]: value })));
             setDone(true);
