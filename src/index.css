@@ -73,3 +73,20 @@ code {
 .ReactVirtualized__List:hover::-webkit-scrollbar {
   width: 10px;
 }
+.postOverView::-webkit-scrollbar {
+  width: 0;
+}
+
+.postOverView::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.postOverView:hover::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+.postOverView:hover::-webkit-scrollbar {
+  width: 8px;
+  border-radius: "10px";
+}

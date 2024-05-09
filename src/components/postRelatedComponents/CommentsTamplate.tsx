@@ -54,7 +54,7 @@ const CommentsTamplate: FC<Prop> = ({ comment, postId }) => {
     setEditComment(false);
   };
   const handleGoUserProfile = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    e: React.MouseEvent<HTMLElement, MouseEvent>
   ) => {
     e.stopPropagation();
     console.log(comment.comment.userCrated);
@@ -66,10 +66,11 @@ const CommentsTamplate: FC<Prop> = ({ comment, postId }) => {
       sx={{
         paddingTop: 0,
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       <Grid item xs={2}>
         <Avatar
-          sx={{ scale: "70%" }}
+          sx={{ scale: "70%", cursor: "pointer" }}
           src={comment.comment.avatar ?? undefined}
           alt={comment.comment.avatar || "User"}
           onClick={(e) => handleGoUserProfile(e)}
@@ -77,7 +78,12 @@ const CommentsTamplate: FC<Prop> = ({ comment, postId }) => {
       </Grid>
       <Grid item xs={5}>
         {" "}
-        <Typography variant="body2" color="initial">
+        <Typography
+          variant="body2"
+          color="initial"
+          sx={{ cursor: "pointer" }}
+          onClick={(e) => handleGoUserProfile(e)}
+        >
           {who}
         </Typography>
         {!editComment ? (
@@ -138,7 +144,11 @@ const CommentsTamplate: FC<Prop> = ({ comment, postId }) => {
             edited
           </Typography>
         )}
-        <Typography variant="body2" color="initial" sx={{ textAlign: "end" }}>
+        <Typography
+          variant="body2"
+          color="initial"
+          sx={{ textAlign: "end", pr: 1 }}
+        >
           {timeAgo}
         </Typography>
       </Box>

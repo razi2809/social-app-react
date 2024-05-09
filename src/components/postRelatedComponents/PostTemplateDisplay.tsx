@@ -3,7 +3,6 @@ import React, { FC, memo, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
 import ShareIcon from "@mui/icons-material/Share";
-
 import {
   Avatar,
   Card,
@@ -21,6 +20,7 @@ import {
   Checkbox,
   Menu,
 } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
 import CommentIcon from "@mui/icons-material/Comment";
 import { db } from "../../firebase";
 import firebase from "firebase/compat/app";
@@ -36,7 +36,7 @@ interface Props {
   setSelectedPost: (postId: string) => void;
 }
 
-const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
+const PostTemplateDisplay: FC<Props> = ({ post, setSelectedPost }) => {
   const [timeAgo, setTimeAgo] = useState("");
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<IComment[]>([]);
@@ -79,10 +79,7 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
     e.stopPropagation();
     console.log(userUid);
   };
-  const showPost = () => {
-    console.log(post.id);
-    setSelectedPost(post.id);
-  };
+
   useEffect(() => {
     if (post.post.timestamp == null) return;
     const when = post.post.timestamp.toDate();
@@ -143,25 +140,27 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  console.log(post);
 
   return (
     <Card
+      className="postOverView"
       sx={{
         borderRadius: 2,
         bgcolor: "divider",
         mb: 3,
         pb: 2,
         position: "relative",
-        height: "500px",
+        height: "65vh",
+        width: "25em",
+        display: "flex",
+        overflow: "auto",
       }}
-      onClick={() => showPost()}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
     >
-      <Box
-        sx={{ position: "absolute", right: 0 }}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
+      <Box sx={{ position: "absolute", right: 0 }}>
         <Tooltip title="more action">
           <IconButton
             aria-label="action"
@@ -195,6 +194,18 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
               </IconButton>
             </Tooltip>
           )}
+          {userUid === user.user?.uid && (
+            <Tooltip title="edit post">
+              <IconButton
+                onClick={(e) => {
+                  handleEdit(e);
+                }}
+                aria-label="edit"
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="share post">
             <IconButton
               onClick={() => {
@@ -222,7 +233,7 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
             component="img"
             alt="Instagram Post Image"
             image={image}
-            sx={{ width: "100%", maxHeight: "320px" }}
+            sx={{ width: "100%", margin: "auto", maxHeight: "320px" }}
           />
         </Grid>
         <CardContent sx={{ width: "100%" }}>
@@ -231,15 +242,28 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
               {caption}
             </Typography>
           ) : (
-            <TextField
-              variant="standard"
-              value={editText}
-              onChange={(e) => {
-                setEditText(e.target.value);
-                // e.stopPropagation();
-              }}
-              onClick={(e) => e.stopPropagation()}
-            />
+            <Box sx={{ display: "flex" }}>
+              <TextField
+                variant="standard"
+                value={editText}
+                onChange={(e) => {
+                  setEditText(e.target.value);
+                  // e.stopPropagation();
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <Tooltip title="save edit">
+                <IconButton
+                  onClick={(e) => {
+                    handleUpdate(e);
+                    // db.collection("posts").doc(post.id).delete();
+                  }}
+                  aria-label="save"
+                >
+                  <SaveIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
           )}
         </CardContent>
         <Box
@@ -271,7 +295,6 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
             justifyContent: "flex-end",
           }}
         >
-          <Button size="small">view all comments</Button>
           {user.user?.uid && (
             <Tooltip title="like">
               <Checkbox
@@ -286,12 +309,14 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
             </Tooltip>
           )}
         </CardActions>
-        {comments.length > 0 ? (
-          <CommentsTamplate
-            key={comments[0].id}
-            comment={comments[0]}
-            postId={post.id}
-          />
+        {comments.length ? (
+          comments.map((comment) => (
+            <CommentsTamplate
+              key={comment.id}
+              comment={comment}
+              postId={post.id}
+            />
+          ))
         ) : (
           <Typography
             variant="h6"
@@ -304,7 +329,7 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
         )}
         {user.isLoggedIn && (
           <Box
-            sx={{ display: "flex", alignItems: "flex-end" }}
+            sx={{ display: "flex", alignItems: "flex-end", pb: 2 }}
             onClick={(e) => e.stopPropagation()}
           >
             <Avatar
@@ -337,4 +362,4 @@ const PostTemplate: FC<Props> = ({ post, setSelectedPost }) => {
   );
 };
 
-export default memo(PostTemplate);
+export default PostTemplateDisplay;

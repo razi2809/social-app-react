@@ -18,6 +18,7 @@ import DisplayUserSmallScreen from "../components/userRelatedComponents/DisplayU
 import { IPost } from "../@types/postRelated";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import PostTemplateDisplay from "../components/postRelatedComponents/PostTemplateDisplay";
 const variants = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1 },
@@ -349,12 +350,10 @@ const PostsPage = () => {
                       }}
                       onClick={() => setSelectedPost(null)}
                     >
-                      {/* <ProductTamplateDisplay
-                    canOrder={isOpen}
-                    product={product}
-                    category={selectedProduct.category}
-                    updateOrder={updateOrder}
-                  /> */}
+                      <PostTemplateDisplay
+                        post={post}
+                        setSelectedPost={setSelectedPost}
+                      />
                     </motion.div>
                   </Grid>
                 );
